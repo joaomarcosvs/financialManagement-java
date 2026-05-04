@@ -24,9 +24,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "transacoes")
+@SQLDelete(sql = "UPDATE transacoes SET ativo = false WHERE id = ?")
+@SQLRestriction("ativo = true")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -68,6 +72,10 @@ public class Transacao {
     @Builder.Default
     @Column(name = "recorrente", nullable = false)
     private boolean recorrente = false;
+
+    @Builder.Default
+    @Column(name = "ativo", nullable = false)
+    private Boolean ativo = true;
 
     @Column(name = "criado_em", nullable = false, updatable = false)
     private OffsetDateTime criadoEm;
