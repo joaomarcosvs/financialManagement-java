@@ -1,0 +1,70 @@
+<mxfile host="app.diagrams.net" modified="2026-05-04T00:00:00.000Z" agent="GitHub Copilot" version="24.7.17" type="device">
+  <diagram id="use-case-diagram" name="Casos de Uso">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Financial Management System" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=32;fontStyle=1;strokeColor=#0f172a;fillColor=#f8fafc;" vertex="1" parent="1">
+          <mxGeometry x="280" y="120" width="980" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="Usuário Comum" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="90" y="220" width="60" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="Casal / Parceiro" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="90" y="420" width="60" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="Chatbot&#xa;(Telegram/WhatsApp)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="280" width="70" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="Autenticar no Sistema (JWT)" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeColor=#1d4ed8;fillColor=#dbeafe;" vertex="1" parent="2">
+          <mxGeometry x="90" y="60" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="Cadastrar Transação&#xa;(Débito/Crédito)" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeColor=#1d4ed8;fillColor=#dbeafe;" vertex="1" parent="2">
+          <mxGeometry x="90" y="170" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="12" value="Gerenciar Contas Compartilhadas" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeColor=#1d4ed8;fillColor=#dbeafe;" vertex="1" parent="2">
+          <mxGeometry x="90" y="290" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="Visualizar Dashboard de Gastos" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeColor=#1d4ed8;fillColor=#dbeafe;" vertex="1" parent="2">
+          <mxGeometry x="390" y="170" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="14" value="Definir Metas e Orçamentos" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeColor=#1d4ed8;fillColor=#dbeafe;" vertex="1" parent="2">
+          <mxGeometry x="390" y="60" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="Receber Alertas de Limite" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeColor=#1d4ed8;fillColor=#dbeafe;" vertex="1" parent="2">
+          <mxGeometry x="700" y="60" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="16" value="Registrar Gasto via Bot" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeColor=#1d4ed8;fillColor=#dbeafe;" vertex="1" parent="2">
+          <mxGeometry x="700" y="190" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="30" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" edge="1" parent="1" source="3" target="10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="31" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" edge="1" parent="1" source="3" target="11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="32" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" edge="1" parent="1" source="3" target="13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="33" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" edge="1" parent="1" source="3" target="14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="34" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" edge="1" parent="1" source="4" target="12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="35" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" edge="1" parent="1" source="4" target="13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="36" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" edge="1" parent="1" source="5" target="16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="37" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" edge="1" parent="1" source="15" target="5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="38" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=block;html=1;rounded=0;strokeColor=#64748b;fontSize=12;" edge="1" parent="2" source="16" target="11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

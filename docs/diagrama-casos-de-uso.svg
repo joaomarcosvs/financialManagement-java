@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-labelledby="title desc">
+  <title id="title">Diagrama de casos de uso do sistema financeiro</title>
+  <desc id="desc">Atores Usuario Comum, Casal Parceiro e Chatbot interagem com os casos de uso de autenticacao, cadastro de transacao, contas compartilhadas, dashboard, metas, alertas e registro via bot.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#64748b" />
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .system { fill: #f8fafc; stroke: #0f172a; stroke-width: 3; }
+      .header { fill: #e2e8f0; stroke: #0f172a; stroke-width: 3; }
+      .actor, .actor-line { stroke: #0f172a; stroke-width: 4; fill: none; stroke-linecap: round; }
+      .usecase { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 3; }
+      .assoc { stroke: #334155; stroke-width: 3; fill: none; }
+      .include { stroke: #64748b; stroke-width: 3; stroke-dasharray: 10 8; fill: none; marker-end: url(#arrow); }
+      .title { font: 700 28px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .label { font: 600 22px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .actor-label { font: 600 24px 'Segoe UI', Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .usecase-text { font: 600 22px 'Segoe UI', Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .include-text { font: italic 18px 'Segoe UI', Arial, sans-serif; fill: #475569; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="900" rx="24" />
+
+  <rect class="system" x="280" y="120" width="980" height="540" rx="18" />
+  <rect class="header" x="280" y="120" width="980" height="46" rx="18" />
+  <text class="title" x="770" y="151" text-anchor="middle">Financial Management System</text>
+
+  <g transform="translate(120 230)">
+    <circle class="actor" cx="0" cy="0" r="18" />
+    <path class="actor-line" d="M 0 18 L 0 74" />
+    <path class="actor-line" d="M -30 40 L 30 40" />
+    <path class="actor-line" d="M 0 74 L -24 116" />
+    <path class="actor-line" d="M 0 74 L 24 116" />
+    <text class="actor-label" x="0" y="154">Usuário Comum</text>
+  </g>
+
+  <g transform="translate(120 430)">
+    <circle class="actor" cx="0" cy="0" r="18" />
+    <path class="actor-line" d="M 0 18 L 0 74" />
+    <path class="actor-line" d="M -30 40 L 30 40" />
+    <path class="actor-line" d="M 0 74 L -24 116" />
+    <path class="actor-line" d="M 0 74 L 24 116" />
+    <text class="actor-label" x="0" y="154">Casal / Parceiro</text>
+  </g>
+
+  <g transform="translate(1355 300)">
+    <circle class="actor" cx="0" cy="0" r="18" />
+    <path class="actor-line" d="M 0 18 L 0 74" />
+    <path class="actor-line" d="M -30 40 L 30 40" />
+    <path class="actor-line" d="M 0 74 L -24 116" />
+    <path class="actor-line" d="M 0 74 L 24 116" />
+    <text class="actor-label" x="0" y="154">Chatbot</text>
+    <text class="actor-label" x="0" y="184">(Telegram/WhatsApp)</text>
+  </g>
+
+  <ellipse class="usecase" cx="480" cy="225" rx="110" ry="45" />
+  <text class="usecase-text" x="480" y="219">Autenticar no Sistema</text>
+  <text class="usecase-text" x="480" y="247">(JWT)</text>
+
+  <ellipse class="usecase" cx="480" cy="335" rx="110" ry="45" />
+  <text class="usecase-text" x="480" y="329">Cadastrar Transação</text>
+  <text class="usecase-text" x="480" y="357">(Débito/Crédito)</text>
+
+  <ellipse class="usecase" cx="490" cy="455" rx="120" ry="45" />
+  <text class="usecase-text" x="490" y="461">Gerenciar Contas Compartilhadas</text>
+
+  <ellipse class="usecase" cx="790" cy="335" rx="120" ry="45" />
+  <text class="usecase-text" x="790" y="329">Visualizar Dashboard</text>
+  <text class="usecase-text" x="790" y="357">de Gastos</text>
+
+  <ellipse class="usecase" cx="790" cy="225" rx="110" ry="45" />
+  <text class="usecase-text" x="790" y="219">Definir Metas e</text>
+  <text class="usecase-text" x="790" y="247">Orçamentos</text>
+
+  <ellipse class="usecase" cx="1100" cy="225" rx="110" ry="45" />
+  <text class="usecase-text" x="1100" y="219">Receber Alertas</text>
+  <text class="usecase-text" x="1100" y="247">de Limite</text>
+
+  <ellipse class="usecase" cx="1100" cy="355" rx="110" ry="45" />
+  <text class="usecase-text" x="1100" y="349">Registrar Gasto</text>
+  <text class="usecase-text" x="1100" y="377">via Bot</text>
+
+  <path class="assoc" d="M 150 250 L 370 225" />
+  <path class="assoc" d="M 150 265 L 370 320" />
+  <path class="assoc" d="M 150 280 L 670 335" />
+  <path class="assoc" d="M 150 295 L 680 225" />
+
+  <path class="assoc" d="M 150 455 L 370 455" />
+  <path class="assoc" d="M 150 470 L 670 350" />
+
+  <path class="assoc" d="M 1320 355 L 1210 355" />
+  <path class="assoc" d="M 1210 245 L 1320 320" />
+
+  <path class="include" d="M 990 355 L 630 355" />
+  <text class="include-text" x="810" y="340">&lt;&lt;include&gt;&gt;</text>
+</svg>

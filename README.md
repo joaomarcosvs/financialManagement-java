@@ -1,28 +1,38 @@
 ## Inicio de um novo projeto!
 
-useCaseDiagram
-    actor "Usuário Comum" as U
-    actor "Casal / Parceiro" as C
-    actor "Chatbot (Telegram/Whats)" as B
+### Diagrama de uso
 
-    package "Financial Management System" {
-        usecase "Autenticar no Sistema (JWT)" as UC1
-        usecase "Cadastrar Transação (Débito/Crédito)" as UC2
-        usecase "Gerenciar Contas Compartilhadas" as UC3
-        usecase "Visualizar Dashboard de Gastos" as UC4
-        usecase "Definir Metas e Orçamentos" as UC5
-        usecase "Receber Alertas de Limite" as UC6
-        usecase "Registrar Gasto via Bot" as UC7
-    }
+Fonte editavel em draw.io: [docs/diagrama-casos-de-uso.drawio](docs/diagrama-casos-de-uso.drawio)
+
+```mermaid
+flowchart LR
+    U[Usuario Comum]
+    C[Casal / Parceiro]
+    B[Chatbot<br/>(Telegram/WhatsApp)]
+
+    subgraph FMS[Financial Management System]
+        UC1([Autenticar no Sistema<br/>(JWT)])
+        UC2([Cadastrar Transacao<br/>(Debito/Credito)])
+        UC3([Gerenciar Contas Compartilhadas])
+        UC4([Visualizar Dashboard de Gastos])
+        UC5([Definir Metas e Orcamentos])
+        UC6([Receber Alertas de Limite])
+        UC7([Registrar Gasto via Bot])
+    end
 
     U --> UC1
     U --> UC2
     U --> UC4
     U --> UC5
-    
+
     C --> UC3
     C --> UC4
-    
+
     B --> UC7
     UC6 --> B
-    UC7 ..> UC2 : <<include>>
+    UC7 -. <<include>> .-> UC2
+```
+
+Imagem exportada em SVG: [docs/diagrama-casos-de-uso.svg](docs/diagrama-casos-de-uso.svg)
+
+![Diagrama de casos de uso](docs/diagrama-casos-de-uso.svg)
