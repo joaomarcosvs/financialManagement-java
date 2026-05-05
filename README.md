@@ -4,6 +4,52 @@ Sistema de gestão financeira pessoal e compartilhada, orientado a lançamentos,
 
 Este README consolida o escopo do MVP, as regras de negócio centrais, os fluxos principais de uso e os limites funcionais do produto.
 
+## Status atual do projeto
+
+O projeto já possui uma base backend funcional em evolução, com domínio financeiro, autenticação JWT, APIs REST principais e métricas iniciais de dashboard.
+
+### Backend já implementado
+
+- modelagem relacional inicial com Flyway para usuários, contas, categorias, tags, transações e compartilhamento de contas;
+- entidades JPA com mapeamento para PostgreSQL;
+- repositories Spring Data JPA para o domínio principal;
+- camada de service para transações, dashboard e gestão de usuários;
+- soft delete em transações;
+- auditoria com `criado_em`, `atualizado_em` e triggers de atualização no banco;
+- autenticação JWT com Spring Security;
+- endpoint de login;
+- endpoints REST iniciais para usuários, transações e dashboard;
+- tratamento global de erros de validação com `MethodArgumentNotValidException`.
+
+### Em andamento / próximo ciclo
+
+- consolidação da camada frontend;
+- integração visual com a API protegida por JWT;
+- cobertura de testes de unidade e integração;
+- evolução do modelo para recorrência real, transferências explícitas e fechamento mensal.
+
+## Stack atual
+
+### Backend
+
+- Java 17
+- Spring Boot
+- Spring Data JPA
+- Spring Security com JWT
+- Flyway
+- PostgreSQL
+- Lombok
+
+### Frontend planejado
+
+- AngularJS
+- Tailwind CSS
+- Chart.js
+
+### Integrações planejadas
+
+- WhatsApp / Telegram via n8n
+
 ## Objetivo do MVP
 
 Entregar uma base funcional para controle financeiro moderno com foco em:
@@ -28,6 +74,37 @@ O MVP contempla os seguintes blocos de negócio:
 - transferências entre contas com atualização dupla de saldo;
 - dashboard de gastos e relatórios por conta e por usuário;
 - alertas de limite e registro de gastos via bot.
+
+## Entregas já realizadas
+
+### 1. Banco de dados e persistência
+
+- migrations Flyway iniciais para estrutura base do domínio financeiro;
+- coluna de soft delete em `transacoes`;
+- evolução de auditoria com `atualizado_em` para transações;
+- índices principais para consultas por usuário, conta, categoria e data.
+
+### 2. Domínio e regras de negócio
+
+- entidades `Usuario`, `Conta`, `Categoria`, `Tag`, `Transacao`, `ContaUsuario` e chave composta `ContaUsuarioId`;
+- regra de saldo em `TransacaoService`, incluindo estorno em exclusão;
+- métricas consolidadas em `DashboardService`;
+- gestão de usuários em `UsuarioService`.
+
+### 3. API REST já disponível
+
+- cadastro e consulta de usuários;
+- login e geração de token JWT;
+- criação, consulta e exclusão lógica de transações;
+- consulta de dashboard mensal por usuário.
+
+### 4. Segurança
+
+- autenticação com Spring Security;
+- login com `AuthenticationManager`;
+- filtro JWT para requisições autenticadas;
+- autorização stateless;
+- criptografia de senha com `BCryptPasswordEncoder`.
 
 ## Atores e canais
 
@@ -150,6 +227,27 @@ Para manter foco e velocidade de entrega, o MVP não cobre neste primeiro ciclo:
 - divisão de uma única transação em múltiplas categorias;
 - NLP avançado no bot além de comandos e padrões bem definidos.
 
+## Estado atual da API
+
+### Endpoints disponíveis
+
+| Método | Rota | Objetivo |
+| --- | --- | --- |
+| `POST` | `/api/v1/usuarios` | cadastrar usuário |
+| `GET` | `/api/v1/usuarios/{id}` | buscar usuário por id |
+| `POST` | `/api/v1/auth/login` | autenticar e gerar JWT |
+| `POST` | `/api/v1/transacoes` | criar transação |
+| `GET` | `/api/v1/transacoes/usuario/{usuarioId}` | listar transações por usuário |
+| `DELETE` | `/api/v1/transacoes/{id}` | excluir transação via soft delete |
+| `GET` | `/api/v1/dashboard/usuario/{usuarioId}?mes={mes}&ano={ano}` | consultar dashboard mensal |
+
+### Regras atuais de segurança
+
+- rotas públicas: `POST /api/v1/usuarios` e `POST /api/v1/auth/login`;
+- demais rotas exigem token JWT válido;
+- autenticação baseada no e-mail do usuário;
+- senha armazenada com hash BCrypt.
+
 ## Aderência ao modelo de dados do MVP
 
 O modelo relacional atual já cobre parte importante do domínio, mas o Definition of Done do MVP exige algumas evoluções adicionais para refletir integralmente as regras abaixo.
@@ -163,6 +261,27 @@ O modelo relacional atual já cobre parte importante do domínio, mas o Definiti
 | Transferências | ainda não há modelagem explícita da operação vinculada | criar agrupador técnico ou tabela dedicada para transferência |
 | Categorias e tags | `categorias`, `tags` e `transacao_tags` já suportam o modelo plano | manter categoria obrigatória e múltiplas tags opcionais |
 | Bot | `usuarios.telefone` suporta identificação primária | criar vínculo de canal, trilha de integração e política de autenticação do bot |
+
+## Roadmap imediato
+
+O backlog atual do projeto, conforme o kanban compartilhado, aponta o próximo ciclo principal no frontend.
+
+### Pendências priorizadas
+
+| Issue | Tipo | Entrega |
+| --- | --- | --- |
+| `#12` | Frontend | configuração do AngularJS, Tailwind CSS e base layout |
+| `#13` | Frontend | tela de login e integração com segurança JWT |
+| `#14` | Frontend | tela de dashboard e integração com Chart.js |
+| `#15` | Frontend | tela de extrato e exclusão de transações |
+| `#16` | Frontend | formulário de cadastro de transação |
+
+### Dependências funcionais do próximo ciclo
+
+- consumir a autenticação JWT já disponível no backend;
+- integrar a consulta de dashboard mensal;
+- consumir criação e exclusão lógica de transações;
+- estruturar navegação autenticada e layout base.
 
 ## Critérios de aceite do MVP
 
@@ -182,14 +301,21 @@ O MVP será considerado aderente quando:
 
 ## Estrutura atual do repositório
 
-- `backend/`: aplicação Java com Spring Boot, JPA/Hibernate e migrations Flyway.
+- `backend/`: aplicação Java com Spring Boot, JPA/Hibernate, Spring Security e migrations Flyway.
+- `backend/src/main/java/com/financial/management/api/`: controllers, DTOs e tratamento de exceções da API.
+- `backend/src/main/java/com/financial/management/domain/`: entidades, repositories e services do domínio.
+- `backend/src/main/java/com/financial/management/security/`: configuração de segurança, JWT e autenticação.
 - `backend/src/main/resources/db/migration/`: migrations oficiais do banco no classpath do backend.
+- `frontend/`: camada frontend ainda não iniciada no repositório atual; backlog definido no kanban.
 - `database/`: arquivos auxiliares e rascunhos de modelagem fora do classpath da aplicação.
 - `docs/`: documentação visual e diagramas.
 
 ## Próximos passos recomendados
 
+- iniciar a Issue `#12` para estruturar o frontend com AngularJS, Tailwind CSS e base layout;
+- integrar a tela de login com o fluxo JWT já exposto pelo backend;
+- implementar a tela de dashboard usando o endpoint mensal já disponível;
+- implementar o fluxo de extrato e exclusão lógica de transações;
 - evoluir o MER para cobrir fechamento mensal, recorrência e transferência como conceitos explícitos;
-- transformar regras textuais em casos de uso da camada de aplicação;
-- criar testes de unidade e integração para recálculo de saldo, meses fechados e operações compartilhadas;
+- criar testes de unidade e integração para segurança, dashboard e regras de saldo;
 - detalhar o contrato de integração do bot com o backend e o n8n.
