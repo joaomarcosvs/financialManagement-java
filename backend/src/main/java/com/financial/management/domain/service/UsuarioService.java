@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public Usuario salvarUsuario(UsuarioRequestDTO dto) {
@@ -28,8 +30,7 @@ public class UsuarioService {
         Usuario usuario = Usuario.builder()
             .nome(dto.nome())
             .email(dto.email())
-            // TODO: Encriptar com BCrypt na Issue #11
-            .senhaHash(dto.senha())
+            .senhaHash(passwordEncoder.encode(dto.senha()))
             .telefone(dto.telefone())
             .criadoEm(agora)
             .atualizadoEm(agora)
