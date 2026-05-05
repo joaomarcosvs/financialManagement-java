@@ -1,0 +1,48 @@
+<div class="min-h-screen bg-slate-950 text-slate-100 md:flex">
+    <aside class="w-full border-b border-slate-800 bg-slate-900 md:min-h-screen md:w-72 md:border-b-0 md:border-r">
+        <div class="border-b border-slate-800 px-6 py-6">
+            <h1 class="text-2xl font-bold tracking-tight text-emerald-400">Financial</h1>
+            <p class="mt-1 text-sm text-slate-400">Painel administrativo</p>
+        </div>
+
+        <nav class="space-y-2 px-3 py-6">
+            <a
+                ui-sref="app.dashboard"
+                ui-sref-active="border-emerald-400 bg-emerald-600/20 text-white"
+                class="block rounded-r-lg border-l-4 border-transparent px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-emerald-400 hover:bg-emerald-600/20 hover:text-white"
+            >
+                Dashboard
+            </a>
+            <a
+                ui-sref="app.transacoes"
+                ui-sref-active="border-emerald-400 bg-emerald-600/20 text-white"
+                class="block rounded-r-lg border-l-4 border-transparent px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-emerald-400 hover:bg-emerald-600/20 hover:text-white"
+            >
+                Transações
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex min-h-screen flex-1 flex-col">
+        <header class="border-b border-slate-800 bg-slate-800 px-6 py-4">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-slate-400">Usuário logado</p>
+                    <p class="text-lg font-semibold text-slate-100">{{ mainVm.usuarioNome }}</p>
+                </div>
+
+                <button
+                    type="button"
+                    ng-click="mainVm.logout()"
+                    class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                >
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 bg-slate-950 p-6">
+            <div ui-view></div>
+        </main>
+    </div>
+</div>

@@ -1,14 +1,46 @@
 <div class="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-    <div class="w-full max-w-md space-y-8 rounded-2xl bg-slate-900 p-8 shadow-2xl border border-slate-800">
+    <div class="w-full max-w-md space-y-8 rounded-2xl border border-emerald-900/60 bg-slate-900 p-8 shadow-2xl">
         <div class="text-center">
-            <h2 class="text-3xl font-bold tracking-tight text-sky-400">Financial Management</h2>
+            <h2 class="text-3xl font-bold tracking-tight text-emerald-400">Financial Management</h2>
             <p class="mt-2 text-sm text-slate-400">Faça login para gerenciar suas finanças</p>
         </div>
-        
-        <div class="mt-8 space-y-6">
-            <button class="w-full rounded-lg bg-sky-600 px-4 py-3 font-semibold text-white hover:bg-sky-500 transition-colors">
+
+        <form class="mt-8 space-y-6" ng-submit="vm.fazerLogin()">
+            <div class="space-y-4">
+                <div>
+                    <label for="email" class="mb-2 block text-sm font-medium text-slate-300">Email</label>
+                    <input
+                        id="email"
+                        type="email"
+                        ng-model="vm.credenciais.email"
+                        class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+                        placeholder="voce@exemplo.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="senha" class="mb-2 block text-sm font-medium text-slate-300">Senha</label>
+                    <input
+                        id="senha"
+                        type="password"
+                        ng-model="vm.credenciais.senha"
+                        class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+            </div>
+
+            <p class="text-sm font-medium text-red-400" ng-if="vm.mensagemErro">
+                {{ vm.mensagemErro }}
+            </p>
+
+            <button type="submit" class="w-full rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-emerald-500">
                 Entrar no Sistema
             </button>
-        </div>
+        </form>
     </div>
 </div>
