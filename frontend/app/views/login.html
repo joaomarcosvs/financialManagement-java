@@ -1,5 +1,230 @@
-<div class="min-h-screen bg-gradient-to-b from-[#06140f] to-black px-4 py-10 text-gray-300 lg:px-10">
-    <div class="mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+<style>
+    @keyframes login-line-flow {
+        0% {
+            stroke-dashoffset: 0;
+            opacity: 0.3;
+        }
+
+        50% {
+            opacity: 0.95;
+        }
+
+        100% {
+            stroke-dashoffset: -220;
+            opacity: 0.45;
+        }
+    }
+
+    @keyframes login-float-a {
+        0%, 100% {
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        50% {
+            transform: translate3d(22px, -12px, 0) scale(1.03);
+        }
+    }
+
+    @keyframes login-float-b {
+        0%, 100% {
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        50% {
+            transform: translate3d(-20px, 18px, 0) scale(0.98);
+        }
+    }
+
+    @keyframes login-float-c {
+        0%, 100% {
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        50% {
+            transform: translate3d(14px, 14px, 0) scale(1.04);
+        }
+    }
+
+    @keyframes login-orb-pulse {
+        0%, 100% {
+            opacity: 0.12;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.22;
+            transform: scale(1.1);
+        }
+    }
+
+    @keyframes login-dot-pulse {
+        0%, 100% {
+            opacity: 0.25;
+            transform: scale(0.85);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1.25);
+        }
+    }
+
+    .login-ambient-track {
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+        opacity: 0.2;
+    }
+
+    .login-ambient-line {
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 4;
+        stroke-dasharray: 18 24 110 30;
+        animation: login-line-flow 18s linear infinite;
+    }
+
+    .login-ambient-line-soft {
+        stroke-width: 3;
+        stroke-dasharray: 12 18 68 24;
+    }
+
+    .login-ambient-line-bright {
+        filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.35)) drop-shadow(0 0 26px rgba(110, 231, 183, 0.18));
+    }
+
+    .login-float-a {
+        animation: login-float-a 18s ease-in-out infinite;
+    }
+
+    .login-float-b {
+        animation: login-float-b 20s ease-in-out infinite;
+    }
+
+    .login-float-c {
+        animation: login-float-c 16s ease-in-out infinite;
+    }
+
+    .login-orb {
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(96px);
+        animation: login-orb-pulse 11s ease-in-out infinite;
+    }
+
+    .login-ambient-pulse {
+        animation: login-dot-pulse 2.8s ease-in-out infinite;
+        transform-origin: center;
+        filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.75)) drop-shadow(0 0 18px rgba(167, 243, 208, 0.35));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .login-ambient-line,
+        .login-float-a,
+        .login-float-b,
+        .login-float-c,
+        .login-orb,
+        .login-ambient-pulse {
+            animation: none !important;
+        }
+
+        .login-ambient-pulse {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#06140f] to-black px-4 py-10 text-gray-300 lg:px-10">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div class="login-orb left-[-7rem] top-[8%] h-72 w-72 bg-emerald-500" style="animation-delay: -1.5s;"></div>
+        <div class="login-orb bottom-[-6rem] right-[-4rem] h-96 w-96 bg-green-400" style="animation-delay: -5s;"></div>
+        <div class="login-orb left-[42%] top-[16%] h-56 w-56 bg-teal-400" style="animation-delay: -8s;"></div>
+
+        <svg class="absolute -left-8 top-0 h-[18rem] w-[40rem] opacity-90 lg:h-[24rem] lg:w-[56rem] login-float-a" viewBox="0 0 900 420">
+            <path class="login-ambient-track" stroke="#14532d" d="M220 -10 C248 118, 360 178, 540 186 C692 192, 822 214, 866 276"></path>
+            <path class="login-ambient-line login-ambient-line-bright" stroke="#86efac" d="M220 -10 C248 118, 360 178, 540 186 C692 192, 822 214, 866 276"></path>
+            <path class="login-ambient-line login-ambient-line-soft" stroke="#34d399" style="animation-delay: -7s; animation-duration: 22s;" d="M220 -10 C248 118, 360 178, 540 186 C692 192, 822 214, 866 276"></path>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="3.5" fill="#bbf7d0">
+                <animate attributeName="r" values="2.5;4.8;2.5" dur="2.8s" repeatCount="indefinite"></animate>
+                <animateMotion dur="11s" repeatCount="indefinite" rotate="auto" path="M220 -10 C248 118, 360 178, 540 186 C692 192, 822 214, 866 276"></animateMotion>
+            </circle>
+        </svg>
+
+        <svg class="absolute -left-10 top-[34%] h-[19rem] w-[22rem] opacity-80 lg:h-[23rem] lg:w-[26rem] login-float-b" viewBox="0 0 420 420">
+            <path class="login-ambient-track" stroke="#14532d" d="M-20 86 C98 82, 170 118, 210 206 C240 278, 286 336, 360 382"></path>
+            <path class="login-ambient-line login-ambient-line-bright" stroke="#6ee7b7" style="animation-duration: 19s;" d="M-20 86 C98 82, 170 118, 210 206 C240 278, 286 336, 360 382"></path>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="3" fill="#6ee7b7" style="animation-delay: -1.2s;">
+                <animate attributeName="r" values="2;4.4;2" dur="2.1s" repeatCount="indefinite"></animate>
+                <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path="M-20 86 C98 82, 170 118, 210 206 C240 278, 286 336, 360 382"></animateMotion>
+            </circle>
+        </svg>
+
+        <svg class="absolute -bottom-8 -left-6 h-[15rem] w-[15rem] opacity-90 lg:h-[18rem] lg:w-[18rem] login-float-c" viewBox="0 0 280 280">
+            <path class="login-ambient-track" stroke="#14532d" d="M26 224 C10 132, 66 66, 142 68 C220 70, 262 132, 252 214 C242 286, 172 328, 98 306"></path>
+            <path class="login-ambient-line login-ambient-line-bright" stroke="#22c55e" style="animation-duration: 17s;" d="M26 224 C10 132, 66 66, 142 68 C220 70, 262 132, 252 214 C242 286, 172 328, 98 306"></path>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="4" fill="#4ade80" style="animation-delay: -0.8s;">
+                <animate attributeName="r" values="2.4;5.2;2.4" dur="2.5s" repeatCount="indefinite"></animate>
+                <animateMotion dur="12s" repeatCount="indefinite" rotate="auto" path="M26 224 C10 132, 66 66, 142 68 C220 70, 262 132, 252 214 C242 286, 172 328, 98 306"></animateMotion>
+            </circle>
+        </svg>
+
+        <svg class="absolute right-0 top-0 h-[15rem] w-[10rem] opacity-80 lg:h-[18rem] lg:w-[12rem] login-float-b" viewBox="0 0 240 240">
+            <path class="login-ambient-track" stroke="#14532d" d="M176 0 C150 48, 154 98, 204 136"></path>
+            <path class="login-ambient-line login-ambient-line-soft login-ambient-line-bright" stroke="#a7f3d0" style="animation-duration: 14s;" d="M176 0 C150 48, 154 98, 204 136"></path>
+            <path class="login-ambient-track" stroke="#14532d" d="M220 0 C194 62, 208 122, 250 146"></path>
+            <path class="login-ambient-line login-ambient-line-soft" stroke="#4ade80" style="animation-delay: -6s; animation-duration: 16s;" d="M220 0 C194 62, 208 122, 250 146"></path>
+            <path class="login-ambient-track" stroke="#14532d" d="M122 38 C116 56, 118 72, 128 86"></path>
+            <path class="login-ambient-line login-ambient-line-soft" stroke="#6ee7b7" style="animation-delay: -3s; animation-duration: 13s;" d="M122 38 C116 56, 118 72, 128 86"></path>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="3" fill="#bbf7d0">
+                <animate attributeName="r" values="1.8;3.8;1.8" dur="1.9s" repeatCount="indefinite"></animate>
+                <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path="M176 0 C150 48, 154 98, 204 136"></animateMotion>
+            </circle>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="2.6" fill="#4ade80" style="animation-delay: -1s;">
+                <animate attributeName="r" values="1.6;3.2;1.6" dur="2.3s" repeatCount="indefinite"></animate>
+                <animateMotion dur="6s" repeatCount="indefinite" rotate="auto" path="M122 38 C116 56, 118 72, 128 86"></animateMotion>
+            </circle>
+        </svg>
+
+        <svg class="absolute left-[18%] top-[8%] hidden h-[8rem] w-[18rem] opacity-70 lg:block login-float-c" viewBox="0 0 320 140">
+            <path class="login-ambient-track" stroke="#14532d" d="M0 42 C68 16, 138 12, 208 34 C244 46, 276 66, 320 108"></path>
+            <path class="login-ambient-line login-ambient-line-soft login-ambient-line-bright" stroke="#6ee7b7" style="animation-duration: 18s;" d="M0 42 C68 16, 138 12, 208 34 C244 46, 276 66, 320 108"></path>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="3.2" fill="#6ee7b7" style="animation-delay: -1.6s;">
+                <animate attributeName="r" values="1.8;4.2;1.8" dur="2.2s" repeatCount="indefinite"></animate>
+                <animateMotion dur="10s" repeatCount="indefinite" rotate="auto" path="M0 42 C68 16, 138 12, 208 34 C244 46, 276 66, 320 108"></animateMotion>
+            </circle>
+        </svg>
+
+        <svg class="absolute -right-6 top-[56%] h-[15rem] w-[19rem] opacity-80 lg:h-[18rem] lg:w-[24rem] login-float-a" viewBox="0 0 420 280">
+            <path class="login-ambient-track" stroke="#14532d" d="M22 126 C112 120, 170 152, 242 214 C294 258, 350 282, 418 258"></path>
+            <path class="login-ambient-line login-ambient-line-bright" stroke="#86efac" style="animation-delay: -8s; animation-duration: 21s;" d="M22 126 C112 120, 170 152, 242 214 C294 258, 350 282, 418 258"></path>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="3.3" fill="#86efac" style="animation-delay: -1.4s;">
+                <animate attributeName="r" values="2;4.6;2" dur="2.6s" repeatCount="indefinite"></animate>
+                <animateMotion dur="11s" repeatCount="indefinite" rotate="auto" path="M22 126 C112 120, 170 152, 242 214 C294 258, 350 282, 418 258"></animateMotion>
+            </circle>
+        </svg>
+
+        <svg class="absolute bottom-[10%] left-[22%] hidden h-[8rem] w-[18rem] opacity-60 lg:block login-float-c" viewBox="0 0 280 140">
+            <path class="login-ambient-track" stroke="#14532d" d="M0 86 C52 104, 94 102, 136 98 C190 92, 232 100, 266 130"></path>
+            <path class="login-ambient-line login-ambient-line-soft" stroke="#34d399" style="animation-duration: 15s;" d="M0 86 C52 104, 94 102, 136 98 C190 92, 232 100, 266 130"></path>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="2.8" fill="#34d399">
+                <animate attributeName="r" values="1.5;3.8;1.5" dur="1.8s" repeatCount="indefinite"></animate>
+                <animateMotion dur="8s" repeatCount="indefinite" rotate="auto" path="M0 86 C52 104, 94 102, 136 98 C190 92, 232 100, 266 130"></animateMotion>
+            </circle>
+        </svg>
+
+        <svg class="absolute bottom-[6%] right-[8%] hidden h-[11rem] w-[16rem] opacity-70 lg:block login-float-b" viewBox="0 0 280 180">
+            <path class="login-ambient-track" stroke="#14532d" d="M0 48 C72 70, 118 106, 156 138 C188 166, 228 176, 280 160"></path>
+            <path class="login-ambient-line login-ambient-line-soft" stroke="#4ade80" style="animation-delay: -4s; animation-duration: 17s;" d="M0 48 C72 70, 118 106, 156 138 C188 166, 228 176, 280 160"></path>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="3.1" fill="#4ade80" style="animation-delay: -0.6s;">
+                <animate attributeName="r" values="1.8;4.1;1.8" dur="2.4s" repeatCount="indefinite"></animate>
+                <animateMotion dur="9.5s" repeatCount="indefinite" rotate="auto" path="M0 48 C72 70, 118 106, 156 138 C188 166, 228 176, 280 160"></animateMotion>
+            </circle>
+        </svg>
+    </div>
+
+    <div class="relative z-10 mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <section class="mx-auto w-full max-w-lg">
             <div class="mb-8">
                 <h1 class="mt-6 text-4xl font-semibold tracking-tight text-zinc-100 sm:text-5xl">
