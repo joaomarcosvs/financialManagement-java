@@ -1,47 +1,102 @@
-<div class="min-h-screen bg-slate-950 text-slate-100 md:flex">
-    <aside class="w-full border-b border-slate-800 bg-slate-900 md:min-h-screen md:w-72 md:border-b-0 md:border-r">
-        <div class="border-b border-slate-800 px-6 py-6">
-            <h1 class="text-2xl font-bold tracking-tight text-emerald-400">Financial</h1>
-            <p class="mt-1 text-sm text-slate-400">Painel administrativo</p>
+<div class="min-h-screen bg-gradient-to-b from-[#06140f] to-black text-gray-300 md:flex">
+    <aside
+        ng-class="{'md:w-64': mainVm.sidebarAberta, 'md:w-20': !mainVm.sidebarAberta}"
+        class="w-full overflow-hidden border-[#10b981]/20 bg-[#030705] transition-all duration-300 ease-in-out md:min-h-screen md:border-r"
+    >
+        <div class="flex h-20 items-center px-4" ng-class="{'justify-between': mainVm.sidebarAberta, 'justify-center': !mainVm.sidebarAberta}">
+            <div class="flex items-center gap-3 overflow-hidden" ng-show="mainVm.sidebarAberta">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#10b981]/10 text-lg text-emerald-400">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="text-xl font-bold tracking-tight text-zinc-100">Financial</h1>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                ng-click="mainVm.toggleSidebar()"
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#10b981]/10 bg-black/30 text-zinc-300 transition-all duration-300 hover:border-[#10b981]/30 hover:bg-[#10b981]/10 hover:text-emerald-400"
+            >
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </div>
 
         <nav class="space-y-2 px-3 py-6">
             <a
                 ui-sref="app.dashboard"
-                ui-sref-active="border-emerald-400 bg-emerald-600/20 text-white"
-                class="block rounded-r-lg border-l-4 border-transparent px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-emerald-400 hover:bg-emerald-600/20 hover:text-white"
+                ui-sref-active="bg-[#10b981]/10 text-emerald-400"
+                class="flex items-center rounded-xl p-3 text-sm font-medium text-zinc-400 transition-all duration-300 hover:bg-[#10b981]/10 hover:text-emerald-400"
+                ng-class="{'justify-center': !mainVm.sidebarAberta, 'justify-start gap-3': mainVm.sidebarAberta}"
             >
-                Dashboard
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/30 text-emerald-400">
+                    <i class="fa-solid fa-chart-line"></i>
+                </span>
+                <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Dashboard</span>
             </a>
             <a
                 ui-sref="app.transacoes"
-                ui-sref-active="border-emerald-400 bg-emerald-600/20 text-white"
-                class="block rounded-r-lg border-l-4 border-transparent px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-emerald-400 hover:bg-emerald-600/20 hover:text-white"
+                ui-sref-active="bg-[#10b981]/10 text-emerald-400"
+                class="flex items-center rounded-xl p-3 text-sm font-medium text-zinc-400 transition-all duration-300 hover:bg-[#10b981]/10 hover:text-emerald-400"
+                ng-class="{'justify-center': !mainVm.sidebarAberta, 'justify-start gap-3': mainVm.sidebarAberta}"
             >
-                Transações
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/30 text-emerald-400">
+                    <i class="fa-solid fa-wallet"></i>
+                </span>
+                <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Transações</span>
             </a>
         </nav>
     </aside>
 
     <div class="flex min-h-screen flex-1 flex-col">
-        <header class="border-b border-slate-800 bg-slate-800 px-6 py-4">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-slate-400">Usuário logado</p>
-                    <p class="text-lg font-semibold text-slate-100">{{ mainVm.usuarioNome }}</p>
-                </div>
+        <header class="h-20 bg-transparent px-6 md:px-8">
+            <div class="relative flex h-full items-center justify-end gap-4">
 
-                <button
-                    type="button"
-                    ng-click="mainVm.logout()"
-                    class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
-                >
-                    Logout
-                </button>
+                <div>
+                    <button
+                        type="button"
+                        ng-click="mainVm.toggleMenu()"
+                        class="flex h-12 w-12 items-center justify-center rounded-full border border-[#10b981]/20 bg-black/30 text-sm font-bold tracking-[0.2em] text-emerald-300 transition hover:border-[#10b981]/40 hover:bg-[#10b981]/10"
+                    >
+                        {{ mainVm.usuario.iniciais }}
+                    </button>
+
+                    <div ng-if="mainVm.menuAberto" class="absolute right-0 top-16 z-50 w-48 rounded-xl border border-[#10b981]/10 bg-[#050a08] shadow-2xl">
+                        <div class="border-b border-[#10b981]/10 px-4 py-3">
+                            <p class="text-sm font-semibold text-zinc-100">{{ mainVm.usuario.nome }}</p>
+                            <p class="mt-1 text-xs uppercase tracking-[0.2em] text-emerald-400">Conta ativa</p>
+                        </div>
+
+                        <div class="p-2">
+                            <button
+                                type="button"
+                                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-zinc-100"
+                            >
+                                <i class="fa-regular fa-user text-emerald-400"></i>
+                                Perfil
+                            </button>
+                            <button
+                                type="button"
+                                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-zinc-100"
+                            >
+                                <i class="fa-solid fa-gear text-emerald-400"></i>
+                                Configurações
+                            </button>
+                            <button
+                                type="button"
+                                ng-click="mainVm.logout()"
+                                class="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
+                            >
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
-        <main class="flex-1 bg-slate-950 p-6">
+        <main class="flex-1 px-6 pb-8 pt-4 md:px-8">
             <div ui-view></div>
         </main>
     </div>

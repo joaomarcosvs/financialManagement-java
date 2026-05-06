@@ -1,4 +1,10 @@
 package com.financial.management.api.dto;
 
-public record TokenResponseDTO(String token) {
+import java.util.UUID;
+
+public record TokenResponseDTO(
+	String token,
+	UUID usuarioId,
+	String nome
+) {
 }

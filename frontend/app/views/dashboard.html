@@ -1,1 +1,61 @@
-<h1 class="text-3xl font-bold text-emerald-400">Dashboard Funciona!</h1>
+<div class="space-y-8">
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+		<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30">
+			<div class="flex items-start justify-between gap-4">
+				<div>
+					<p class="text-sm font-medium uppercase tracking-[0.2em] text-zinc-400">Saldo Atual</p>
+					<p class="mt-4 text-3xl font-bold text-emerald-400">{{ vm.dados.saldoAtualTotal | currency:'R$ ' }}</p>
+				</div>
+				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
+					<i class="fa-solid fa-wallet text-lg"></i>
+				</div>
+			</div>
+			<p class="mt-6 text-sm text-zinc-500">Panorama consolidado das contas conectadas.</p>
+		</section>
+
+		<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30">
+			<div class="flex items-start justify-between gap-4">
+				<div>
+					<p class="text-sm font-medium uppercase tracking-[0.2em] text-zinc-400">Receitas do Mês</p>
+					<p class="mt-4 text-3xl font-bold text-emerald-400">{{ vm.dados.totalReceitas | currency:'R$ ' }}</p>
+				</div>
+				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
+					<i class="fa-solid fa-arrow-trend-up text-lg"></i>
+				</div>
+			</div>
+			<p class="mt-6 text-sm text-zinc-500">Entradas registradas na competência {{ vm.competenciaLabel }}.</p>
+		</section>
+
+		<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30">
+			<div class="flex items-start justify-between gap-4">
+				<div>
+					<p class="text-sm font-medium uppercase tracking-[0.2em] text-zinc-400">Despesas do Mês</p>
+					<p class="mt-4 text-3xl font-bold text-rose-400">{{ vm.dados.totalDespesas | currency:'R$ ' }}</p>
+				</div>
+				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-400">
+					<i class="fa-solid fa-arrow-trend-down text-lg"></i>
+				</div>
+			</div>
+			<p class="mt-6 text-sm text-zinc-500">Saídas monitoradas com alertas de consumo.</p>
+		</section>
+	</div>
+
+	<section class="mx-auto w-full max-w-5xl rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30 md:p-8">
+		<div class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+			<div>
+				<p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500/70">Analytics</p>
+				<h2 class="mt-2 text-2xl font-semibold text-zinc-100">Composição inteligente dos gastos</h2>
+				<p class="mt-2 text-sm text-zinc-400">Visualização doughnut com foco em categorias que mais pressionam o caixa.</p>
+			</div>
+			<span class="rounded-full border border-emerald-500/30 bg-emerald-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
+				{{ vm.competenciaLabel }}
+			</span>
+		</div>
+
+		<div class="mx-auto max-w-md rounded-2xl border border-[#10b981]/10 bg-[#050a08]/80 p-4 md:max-w-lg md:p-6">
+			<canvas id="gastosChart"></canvas>
+		</div>
+
+		<p class="mt-4 text-sm text-red-400" ng-if="vm.mensagemErro">{{ vm.mensagemErro }}</p>
+	</section>
+</div>

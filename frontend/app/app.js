@@ -4,8 +4,9 @@ app.factory('AuthInterceptor', function($window) {
     return {
         request: function(config) {
             var token = $window.localStorage.getItem('jwt_token');
+            var isLoginRequest = config.url && config.url.indexOf('/api/v1/auth/login') !== -1;
 
-            if (token) {
+            if (token && !isLoginRequest) {
                 config.headers = config.headers || {};
                 config.headers.Authorization = 'Bearer ' + token;
             }

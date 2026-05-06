@@ -17,7 +17,7 @@ app.controller('LoginController', function(AuthService, $state) {
                     return;
                 }
 
-                AuthService.salvarToken(response.data.token);
+                AuthService.salvarSessao(response.data);
                 $state.go('app.dashboard');
             })
             .catch(function() {
