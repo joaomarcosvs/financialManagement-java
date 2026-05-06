@@ -84,7 +84,8 @@ public class TransacaoController {
             transacao.getStatus(),
             transacao.getConta().getId(),
             transacao.getCategoria().getNome(),
-            transacao.getCategoria().getCor()
+            transacao.getCategoria().getCor(),
+            transacao.getCategoria().getTipo()
         );
     }
 }

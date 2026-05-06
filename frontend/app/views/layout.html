@@ -35,6 +35,17 @@
                 <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Dashboard</span>
             </a>
             <a
+                ui-sref="app.extrato"
+                ui-sref-active="bg-[#10b981]/10 text-emerald-400"
+                class="flex items-center rounded-xl p-3 text-sm font-medium text-zinc-400 transition-all duration-300 hover:bg-[#10b981]/10 hover:text-emerald-400"
+                ng-class="{'justify-center': !mainVm.sidebarAberta, 'justify-start gap-3': mainVm.sidebarAberta}"
+            >
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/30 text-emerald-400">
+                    <i class="fa-solid fa-receipt"></i>
+                </span>
+                <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Extrato</span>
+            </a>
+            <a
                 ui-sref="app.transacoes"
                 ui-sref-active="bg-[#10b981]/10 text-emerald-400"
                 class="flex items-center rounded-xl p-3 text-sm font-medium text-zinc-400 transition-all duration-300 hover:bg-[#10b981]/10 hover:text-emerald-400"

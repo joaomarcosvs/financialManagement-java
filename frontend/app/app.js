@@ -43,6 +43,12 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
             controller: 'DashboardController',
             controllerAs: 'vm'
         })
+        .state('app.extrato', {
+            url: '/extrato',
+            templateUrl: 'app/views/extrato.html',
+            controller: 'ExtratoController',
+            controllerAs: 'vm'
+        })
         .state('app.transacoes', {
             url: '/transacoes',
             templateUrl: 'app/views/transacoes.html'

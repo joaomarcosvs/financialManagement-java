@@ -12,6 +12,7 @@ public record TransacaoResponseDTO(
     String status,
     UUID contaId,
     String categoriaNome,
-    String categoriaCor
+    String categoriaCor,
+    String tipo
 ) {
 }

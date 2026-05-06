@@ -1,0 +1,81 @@
+<div class="space-y-8">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-semibold text-zinc-100">Histórico de Transações</h1>
+            <p class="mt-2 text-sm text-zinc-500">Acompanhe todas as movimentações financeiras registradas na conta.</p>
+        </div>
+
+        <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
+        >
+            Nova Transação
+        </button>
+    </div>
+
+    <section class="overflow-hidden rounded-2xl border border-[#10b981]/10 bg-[#080d0b]">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[#10b981]/10">
+                <thead class="bg-[#0a120e]">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Data</th>
+                        <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Descrição</th>
+                        <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Categoria</th>
+                        <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Tipo</th>
+                        <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Valor</th>
+                        <th class="px-6 py-4 text-right text-xs uppercase tracking-[0.2em] text-gray-400">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        ng-repeat="t in vm.transacoes"
+                        class="border-t border-[#10b981]/10 text-sm text-zinc-300 transition-colors hover:bg-[#10b981]/5"
+                    >
+                        <td class="whitespace-nowrap px-6 py-4">{{ t.dataTransacao | date:'dd/MM/yyyy' }}</td>
+                        <td class="px-6 py-4 text-zinc-200">{{ t.descricao || '-' }}</td>
+                        <td class="px-6 py-4">{{ t.categoriaNome }}</td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
+                                ng-class="{
+                                    'bg-emerald-500/10 text-emerald-400': t.tipo === 'RECEITA',
+                                    'bg-rose-500/10 text-rose-400': t.tipo === 'DESPESA',
+                                    'bg-zinc-800 text-zinc-300': t.tipo !== 'RECEITA' && t.tipo !== 'DESPESA'
+                                }"
+                            >
+                                {{ t.tipo }}
+                            </span>
+                        </td>
+                        <td
+                            class="whitespace-nowrap px-6 py-4 font-semibold"
+                            ng-class="{
+                                'text-emerald-400': t.tipo === 'RECEITA',
+                                'text-rose-400': t.tipo === 'DESPESA',
+                                'text-zinc-200': t.tipo !== 'RECEITA' && t.tipo !== 'DESPESA'
+                            }"
+                        >
+                            {{ t.valor | currency:'R$ ' }}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button
+                                type="button"
+                                class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
+                            >
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr ng-if="!vm.transacoes.length && !vm.mensagemErro">
+                        <td colspan="6" class="px-6 py-10 text-center text-sm text-zinc-500">
+                            Nenhuma transação encontrada para este usuário.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="border-t border-[#10b981]/10 px-6 py-4 text-sm text-rose-400" ng-if="vm.mensagemErro">
+            {{ vm.mensagemErro }}
+        </p>
+    </section>
+</div>
