@@ -48,9 +48,5 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
             templateUrl: 'app/views/extrato.html',
             controller: 'ExtratoController',
             controllerAs: 'vm'
-        })
-        .state('app.transacoes', {
-            url: '/transacoes',
-            templateUrl: 'app/views/transacoes.html'
         });
 });

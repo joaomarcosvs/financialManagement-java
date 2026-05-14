@@ -21,10 +21,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UsuarioRepository usuarioRepository;
-
     @Bean
-    public UserDetailsService userDetailsService() {
+    public UserDetailsService userDetailsService(UsuarioRepository usuarioRepository) {
         return username -> usuarioRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
     }
