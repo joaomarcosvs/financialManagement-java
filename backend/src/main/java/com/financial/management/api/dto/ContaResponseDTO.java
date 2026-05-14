@@ -8,6 +8,7 @@ public record ContaResponseDTO(
     UUID id,
     String nome,
     String tipo,
+    String icone,
     BigDecimal saldoAtual,
     LocalDateTime criadoEm,
     LocalDateTime atualizadoEm

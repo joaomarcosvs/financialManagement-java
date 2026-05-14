@@ -45,6 +45,9 @@ public class Conta {
     @Column(name = "tipo", nullable = false, length = 30)
     private String tipo;
 
+    @Column(name = "icone", length = 50)
+    private String icone;
+
     @Column(name = "saldo_atual", nullable = false, precision = 19, scale = 2)
     private BigDecimal saldoAtual;
 
