@@ -222,7 +222,18 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div>
+                        <label for="conta" class="mb-2 block text-sm font-medium text-zinc-300">Conta</label>
+                        <select
+                            id="conta"
+                            ng-model="vm.novaTransacao.contaId"
+                            ng-options="c.id as c.nome for c in vm.contas"
+                            class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                            required
+                        ></select>
+                    </div>
+
                     <div>
                         <label for="tipo" class="mb-2 block text-sm font-medium text-zinc-300">Tipo</label>
                         <select
@@ -240,8 +251,8 @@
                         <label for="categoria" class="mb-2 block text-sm font-medium text-zinc-300">Categoria</label>
                         <select
                             id="categoria"
-                            ng-model="vm.novaTransacao.categoria"
-                            ng-options="cat for cat in vm.categorias"
+                            ng-model="vm.novaTransacao.categoriaId"
+                            ng-options="cat.id as cat.nome for cat in vm.listaCategoriasReais"
                             class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                             required
                         ></select>

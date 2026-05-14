@@ -1,11 +1,11 @@
-app.controller('DashboardController', function(DashboardService, $timeout) {
+app.controller('DashboardController', function(AuthService, DashboardService, $timeout) {
     var vm = this;
     var gastosChart;
     var agora = new Date();
     var mes = agora.getMonth() + 1;
     var ano = agora.getFullYear();
-    var usuarioId = localStorage.getItem('usuario_id');
 
+    vm.usuarioLogado = AuthService.getUsuarioLogado();
     vm.competenciaLabel = ('0' + mes).slice(-2) + '/' + ano;
     vm.dados = {
         saldoAtualTotal: 0,
@@ -16,17 +16,14 @@ app.controller('DashboardController', function(DashboardService, $timeout) {
     vm.mensagemErro = '';
 
     vm.carregarDados = function() {
-        var usuarioIdFixo = 'eb5941ab-c615-49ef-8df4-1becfcc60c1c'; // Cole aqui o UUID real do seu banco
-        var mes = 5;
-        var ano = 2026;
         vm.mensagemErro = '';
 
-        if (!usuarioId) {
+        if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
             vm.mensagemErro = 'Usuário não identificado na sessão atual.';
             return;
         }
 
-        DashboardService.obterResumo(usuarioId, mes, ano)
+        DashboardService.obterResumo(vm.usuarioLogado.id, mes, ano)
             .then(function(response) {
                 vm.dados = response.data;
 

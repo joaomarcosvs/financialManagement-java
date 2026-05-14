@@ -2,11 +2,22 @@ app.factory('AuthService', function($http, $window) {
     var tokenStorageKey = 'jwt_token';
     var userIdStorageKey = 'usuario_id';
     var userNameStorageKey = 'usuario_nome';
+    var userStorageKey = 'usuario_logado';
+
+    function salvarUsuarioLogado(authData) {
+        var usuarioLogado = {
+            id: authData.usuarioId || null,
+            nome: authData.nome || ''
+        };
+
+        $window.localStorage.setItem(userStorageKey, JSON.stringify(usuarioLogado));
+    }
 
     function limparArmazenamento() {
         $window.localStorage.removeItem(tokenStorageKey);
         $window.localStorage.removeItem(userIdStorageKey);
         $window.localStorage.removeItem(userNameStorageKey);
+        $window.localStorage.removeItem(userStorageKey);
     }
 
     return {
@@ -28,6 +39,10 @@ app.factory('AuthService', function($http, $window) {
             if (authData.nome) {
                 $window.localStorage.setItem(userNameStorageKey, authData.nome);
             }
+
+            if (authData.usuarioId || authData.nome) {
+                salvarUsuarioLogado(authData);
+            }
         },
         getToken: function() {
             return $window.localStorage.getItem(tokenStorageKey);
@@ -37,6 +52,26 @@ app.factory('AuthService', function($http, $window) {
         },
         getUsuarioNome: function() {
             return $window.localStorage.getItem(userNameStorageKey);
+        },
+        getUsuarioLogado: function() {
+            var usuarioLogado = $window.localStorage.getItem(userStorageKey);
+
+            if (usuarioLogado) {
+                try {
+                    return JSON.parse(usuarioLogado);
+                } catch (error) {
+                    $window.localStorage.removeItem(userStorageKey);
+                }
+            }
+
+            if (!this.getUsuarioId() && !this.getUsuarioNome()) {
+                return null;
+            }
+
+            return {
+                id: this.getUsuarioId(),
+                nome: this.getUsuarioNome() || ''
+            };
         },
         limparToken: function() {
             limparArmazenamento();

@@ -1,15 +1,10 @@
-app.controller('ExtratoController', function(TransacaoService) {
+app.controller('ExtratoController', function(AuthService, CategoriaService, ContaService, TransacaoService) {
     var vm = this;
-    var usuarioId = 'eb5941ab-c615-49ef-8df4-1becfcc60c1c';
-    var categoriaIds = {
-        SALARIO: '11111111-2222-3333-4444-555555555555',
-        ALIMENTACAO: '22222222-3333-4444-5555-666666666666',
-        TRANSPORTE: '33333333-4444-5555-6666-777777777777',
-        LAZER: '44444444-5555-6666-7777-888888888888',
-        OUTROS: '22222222-3333-4444-5555-666666666666'
-    };
 
+    vm.usuarioLogado = null;
     vm.transacoes = [];
+    vm.contas = [];
+    vm.listaCategoriasReais = [];
     vm.mensagemErro = '';
     vm.mensagemModalErro = '';
     vm.modalAberto = false;
@@ -17,14 +12,31 @@ app.controller('ExtratoController', function(TransacaoService) {
     vm.mensagemExclusaoErro = '';
     vm.transacaoPendenteExclusao = null;
     vm.excluindoTransacaoId = null;
-    vm.categorias = ['ALIMENTACAO', 'TRANSPORTE', 'SALARIO', 'LAZER', 'OUTROS'];
 
     vm.abrirModal = function() {
+        vm.mensagemErro = '';
+        vm.mensagemModalErro = '';
+
+        if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
+            vm.mensagemErro = 'Usuário não identificado na sessão atual.';
+            return;
+        }
+
+        if (!vm.contas.length) {
+            vm.mensagemErro = 'Nenhuma conta disponível para o usuário logado.';
+            return;
+        }
+
+        if (!vm.listaCategoriasReais.length) {
+            vm.mensagemErro = 'Nenhuma categoria disponível para nova transação.';
+            return;
+        }
+
         vm.novaTransacao = {
             tipo: 'DESPESA',
-            categoria: vm.categorias[0]
+            contaId: vm.contas[0].id,
+            categoriaId: vm.listaCategoriasReais[0].id
         };
-        vm.mensagemModalErro = '';
         vm.modalAberto = true;
     };
 
@@ -44,14 +56,43 @@ app.controller('ExtratoController', function(TransacaoService) {
     };
 
     vm.carregarTransacoes = function() {
+        if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
+            vm.mensagemErro = 'Usuário não identificado na sessão atual.';
+            return;
+        }
+
         vm.mensagemErro = '';
 
-        TransacaoService.listarPorUsuario(usuarioId)
+        TransacaoService.listarPorUsuario(vm.usuarioLogado.id)
             .then(function(response) {
                 vm.transacoes = response.data || [];
             })
             .catch(function() {
                 vm.mensagemErro = 'Não foi possível carregar o histórico de transações.';
+            });
+    };
+
+    vm.carregarContas = function() {
+        if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
+            return;
+        }
+
+        ContaService.listarPorUsuario(vm.usuarioLogado.id)
+            .then(function(response) {
+                vm.contas = response.data || [];
+            })
+            .catch(function() {
+                vm.mensagemErro = 'Não foi possível carregar as contas do usuário logado.';
+            });
+    };
+
+    vm.carregarCategorias = function() {
+        CategoriaService.listarTodas()
+            .then(function(response) {
+                vm.listaCategoriasReais = response.data || [];
+            })
+            .catch(function() {
+                vm.mensagemErro = 'Não foi possível carregar as categorias.';
             });
     };
 
@@ -62,19 +103,29 @@ app.controller('ExtratoController', function(TransacaoService) {
 
         vm.mensagemModalErro = '';
 
+        if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
+            vm.mensagemModalErro = 'Usuário não identificado na sessão atual.';
+            return;
+        }
+
         if (dataTransacao instanceof Date) {
             dataTransacao = dataTransacao.toISOString().slice(0, 10);
         }
 
         payload = {
-            usuarioId: usuarioId,
-            contaId: 'b5fd9db9-605d-4e74-bdd5-e4b6a5c9f34f',
-            categoriaId: categoriaIds[vm.novaTransacao.categoria],
+            usuarioId: vm.usuarioLogado.id,
+            contaId: vm.novaTransacao.contaId,
+            categoriaId: vm.novaTransacao.categoriaId,
             valor: parseFloat(vm.novaTransacao.valor),
             dataTransacao: dataTransacao,
             descricao: vm.novaTransacao.descricao,
             status: vm.novaTransacao.tipo
         };
+
+        if (!payload.contaId || !payload.categoriaId) {
+            vm.mensagemModalErro = 'Selecione uma conta e uma categoria válidas.';
+            return;
+        }
 
         TransacaoService.criar(payload)
             .then(function() {
@@ -146,5 +197,14 @@ app.controller('ExtratoController', function(TransacaoService) {
             });
     };
 
+    vm.usuarioLogado = AuthService.getUsuarioLogado();
+
+    if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
+        vm.mensagemErro = 'Usuário não identificado na sessão atual.';
+        return;
+    }
+
     vm.carregarTransacoes();
+    vm.carregarContas();
+    vm.carregarCategorias();
 });
