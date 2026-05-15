@@ -30,6 +30,12 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
             controller: 'LoginController',
             controllerAs: 'vm' // O "vm" significa View Model (Padrão de mercado)
         })
+        .state('registro', {
+            url: '/registro',
+            templateUrl: 'app/views/registro.html',
+            controller: 'RegistroController',
+            controllerAs: 'vm'
+        })
         .state('app', {
             abstract: true,
             url: '/app',

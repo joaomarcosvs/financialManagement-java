@@ -3,6 +3,7 @@ app.factory('AuthService', function($http, $window) {
     var userIdStorageKey = 'usuario_id';
     var userNameStorageKey = 'usuario_nome';
     var userStorageKey = 'usuario_logado';
+    var registroFlashMessageKey = 'registro_flash_message';
 
     function salvarUsuarioLogado(authData) {
         var usuarioLogado = {
@@ -23,6 +24,9 @@ app.factory('AuthService', function($http, $window) {
     return {
         login: function(credenciais) {
             return $http.post('http://localhost:8080/api/v1/auth/login', credenciais);
+        },
+        registrar: function(usuario) {
+            return $http.post('http://localhost:8080/api/v1/usuarios', usuario);
         },
         salvarToken: function(token) {
             $window.localStorage.setItem(tokenStorageKey, token);
@@ -72,6 +76,18 @@ app.factory('AuthService', function($http, $window) {
                 id: this.getUsuarioId(),
                 nome: this.getUsuarioNome() || ''
             };
+        },
+        salvarMensagemRegistro: function(mensagem) {
+            $window.sessionStorage.setItem(registroFlashMessageKey, mensagem || 'Conta criada com sucesso. Faça login para continuar.');
+        },
+        consumirMensagemRegistro: function() {
+            var mensagem = $window.sessionStorage.getItem(registroFlashMessageKey);
+
+            if (mensagem) {
+                $window.sessionStorage.removeItem(registroFlashMessageKey);
+            }
+
+            return mensagem;
         },
         limparToken: function() {
             limparArmazenamento();

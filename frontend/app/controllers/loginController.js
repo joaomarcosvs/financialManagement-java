@@ -6,9 +6,11 @@ app.controller('LoginController', function(AuthService, $state) {
         senha: ''
     };
     vm.mensagemErro = '';
+    vm.mensagemSucesso = AuthService.consumirMensagemRegistro() || '';
 
     vm.fazerLogin = function() {
         vm.mensagemErro = '';
+        vm.mensagemSucesso = '';
 
         AuthService.login(vm.credenciais)
             .then(function(response) {

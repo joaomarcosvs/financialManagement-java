@@ -3,6 +3,7 @@ package com.financial.management.api.exception;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,6 +21,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleEntityNotFoundException(EntityNotFoundException exception) {
         return buildMessageResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolationException(
+        DataIntegrityViolationException exception
+    ) {
+        return buildMessageResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

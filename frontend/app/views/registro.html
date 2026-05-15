@@ -228,27 +228,40 @@
         <section class="mx-auto w-full max-w-lg">
             <div class="mb-8">
                 <h1 class="mt-6 text-4xl font-semibold tracking-tight text-zinc-100 sm:text-5xl">
-                    Financial Management
+                    Crie sua conta
                 </h1>
                 <p class="mt-4 max-w-md text-base leading-7 text-zinc-400">
-                    Entre para visualizar seu ecossistema financeiro com uma experiencia pensada para clareza, controle e expansao.
+                    Junte-se à plataforma premium de gestão e organize seu financeiro com clareza, contexto e controle desde o primeiro acesso.
                 </p>
             </div>
 
             <div class="rounded-2xl border border-[#10b981]/20 bg-[#080d0b] p-8 shadow-2xl shadow-black/30">
                 <div>
-                    <h2 class="text-2xl font-semibold text-zinc-100">Acesse sua conta</h2>
-                    <p class="mt-2 text-sm text-zinc-500">Faça login para continuar no painel premium.</p>
+                    <h2 class="text-2xl font-semibold text-zinc-100">Crie sua conta</h2>
+                    <p class="mt-2 text-sm text-zinc-500">Cadastre-se para iniciar sua jornada no painel premium.</p>
                 </div>
 
-                <form class="mt-8 space-y-6" ng-submit="vm.fazerLogin()">
+                <form class="mt-8 space-y-6" ng-submit="vm.cadastrar()">
                     <div class="space-y-4">
                         <div>
-                            <label for="email" class="mb-2 block text-sm font-medium text-zinc-300">Email</label>
+                            <label for="nome" class="mb-2 block text-sm font-medium text-zinc-300">Nome Completo</label>
                             <input
-                                id="email"
+                                id="nome"
+                                type="text"
+                                ng-model="vm.usuario.nome"
+                                class="w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                placeholder="Seu nome completo"
+                                autocomplete="name"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label for="registroEmail" class="mb-2 block text-sm font-medium text-zinc-300">E-mail</label>
+                            <input
+                                id="registroEmail"
                                 type="email"
-                                ng-model="vm.credenciais.email"
+                                ng-model="vm.usuario.email"
                                 class="w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                 placeholder="voce@exemplo.com"
                                 autocomplete="email"
@@ -257,34 +270,43 @@
                         </div>
 
                         <div>
-                            <label for="senha" class="mb-2 block text-sm font-medium text-zinc-300">Senha</label>
+                            <label for="telefone" class="mb-2 block text-sm font-medium text-zinc-300">Telefone</label>
                             <input
-                                id="senha"
-                                type="password"
-                                ng-model="vm.credenciais.senha"
+                                id="telefone"
+                                type="text"
+                                ng-model="vm.usuario.telefone"
                                 class="w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                                placeholder="Digite sua senha"
-                                autocomplete="current-password"
+                                placeholder="(11) 99999-9999"
+                                autocomplete="tel"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="registroSenha" class="mb-2 block text-sm font-medium text-zinc-300">Senha</label>
+                            <input
+                                id="registroSenha"
+                                type="password"
+                                ng-model="vm.usuario.senha"
+                                class="w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                placeholder="Crie uma senha segura"
+                                autocomplete="new-password"
                                 required
                             >
                         </div>
                     </div>
 
-                    <p class="text-sm font-medium text-emerald-300" ng-if="vm.mensagemSucesso">
-                        {{ vm.mensagemSucesso }}
-                    </p>
-
                     <p class="text-sm font-medium text-rose-400" ng-if="vm.mensagemErro">
                         {{ vm.mensagemErro }}
                     </p>
 
-                    <button type="submit" class="w-full rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white shadow-lg shadow-emerald-500/20 transition duration-300 hover:bg-emerald-400">
-                        Entrar no Sistema
+                    <button type="submit" ng-disabled="vm.processandoCadastro" class="w-full rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white shadow-lg shadow-emerald-500/20 transition duration-300 hover:bg-emerald-400" ng-class="{ 'cursor-not-allowed opacity-60': vm.processandoCadastro }">
+                        <span ng-if="!vm.processandoCadastro">Criar Conta</span>
+                        <span ng-if="vm.processandoCadastro">Criando...</span>
                     </button>
 
                     <p class="text-center text-sm text-zinc-500">
-                        Ainda não tem uma conta?
-                        <a href="#!/registro" class="text-emerald-500 transition hover:text-emerald-400">Cadastre-se</a>
+                        Já tem uma conta?
+                        <a href="#!/login" class="text-emerald-500 transition hover:text-emerald-400">Faça login</a>
                     </p>
                 </form>
             </div>
