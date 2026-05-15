@@ -5,6 +5,7 @@ app.controller('ExtratoController', function(AuthService, CategoriaService, Cont
     vm.transacoes = [];
     vm.contas = [];
     vm.listaCategoriasReais = [];
+    vm.tiposTransacao = ['RECEITA', 'DESPESA'];
     vm.mensagemErro = '';
     vm.mensagemModalErro = '';
     vm.modalAberto = false;

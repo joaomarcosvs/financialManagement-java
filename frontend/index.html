@@ -9,8 +9,46 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <script src="https://unpkg.com/@uirouter/angularjs/release/angular-ui-router.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .financial-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(16, 185, 129, 0.45) rgba(255, 255, 255, 0.04);
+        }
+
+        .financial-scrollbar::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .financial-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .financial-scrollbar::-webkit-scrollbar-thumb {
+            border: 2px solid transparent;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.45);
+            background-clip: padding-box;
+        }
+
+        .financial-select-panel {
+            animation: financial-select-fade 0.16s ease-out;
+        }
+
+        @keyframes financial-select-fade {
+            from {
+                opacity: 0;
+                transform: translateY(6px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+    </style>
     
     <script src="app/app.js"></script>
+    <script src="app/directives/financialSelect.js"></script>
     <script src="app/services/authService.js"></script>
     <script src="app/services/contaService.js"></script>
     <script src="app/services/categoriaService.js"></script>

@@ -1,24 +1,29 @@
-app.controller('ContaController', function(AuthService, ContaService) {
+app.controller('ContaController', function($http, AuthService, ContaService) {
     var vm = this;
     var iconesDisponiveis = ['itau', 'nubank', 'picpay', 'n8n'];
+    var mapaIconesPorCodigo = {
+        '0341': 'itau',
+        '0260': 'nubank',
+        '0380': 'picpay'
+    };
 
     vm.usuarioLogado = null;
     vm.contas = [];
+    vm.bancosBrasil = [];
     vm.mensagemErro = '';
+    vm.mensagemSucesso = '';
     vm.mensagemModalErro = '';
     vm.mensagemExclusaoErro = '';
     vm.modalAberto = false;
     vm.modalExclusaoAberto = false;
     vm.salvandoConta = false;
+    vm.carregandoBancos = false;
     vm.excluindoContaId = null;
     vm.contaPendenteExclusao = null;
     vm.tiposConta = ['DEBITO', 'CREDITO', 'POUPANCA'];
-    vm.bancosDisponiveis = [
-        { slug: 'itau', nome: 'Itaú' },
-        { slug: 'nubank', nome: 'Nubank' },
-        { slug: 'picpay', nome: 'PicPay' },
-        { slug: 'n8n', nome: 'n8n' }
-    ];
+    vm.formatarBanco = function(banco) {
+        return banco.code + ' - ' + banco.name;
+    };
 
     vm.getIcone = function(slug) {
         var slugNormalizado = (slug || '').toString().trim().toLowerCase();
@@ -27,15 +32,68 @@ app.controller('ContaController', function(AuthService, ContaService) {
             return 'assets/images/' + slugNormalizado + '.svg';
         }
 
-        return 'fa-solid fa-wallet';
+        return 'fa-solid fa-building-columns';
     };
 
     vm.ehImagemIcone = function(icone) {
         return typeof icone === 'string' && icone.indexOf('assets/images/') === 0;
     };
 
+    vm.carregarBancos = function() {
+        vm.carregandoBancos = true;
+
+        return $http.get('https://brasilapi.com.br/api/banks/v1')
+            .then(function(response) {
+                vm.bancosBrasil = (response.data || [])
+                    .filter(function(banco) {
+                        return banco &&
+                            typeof banco.name === 'string' &&
+                            banco.name.trim() &&
+                            banco.code !== null &&
+                            banco.code !== undefined &&
+                            banco.code.toString().trim();
+                    })
+                    .map(function(banco) {
+                        return {
+                            code: normalizarCodigoBanco(banco.code),
+                            name: banco.name.trim()
+                        };
+                    })
+                    .sort(function(primeiroBanco, segundoBanco) {
+                        return primeiroBanco.name.localeCompare(segundoBanco.name, 'pt-BR', { sensitivity: 'base' });
+                    });
+
+                if (vm.novaConta && !vm.novaConta.codigoBanco && vm.bancosBrasil.length) {
+                    vm.novaConta.codigoBanco = vm.bancosBrasil[0].code;
+                    vm.atualizarPreview();
+                }
+            })
+            .catch(function() {
+                vm.bancosBrasil = [];
+                if (vm.modalAberto) {
+                    vm.mensagemModalErro = 'Não foi possível carregar a lista de bancos da Brasil API.';
+                }
+            })
+            .finally(function() {
+                vm.carregandoBancos = false;
+            });
+    };
+
+    vm.atualizarPreview = function() {
+        var codigoBanco;
+
+        if (!vm.novaConta) {
+            return;
+        }
+
+        codigoBanco = normalizarCodigoBanco(vm.novaConta.codigoBanco);
+        vm.novaConta.codigoBanco = codigoBanco;
+        vm.novaConta.icone = mapaIconesPorCodigo[codigoBanco] || 'generic';
+    };
+
     vm.abrirModal = function() {
         vm.mensagemErro = '';
+        vm.mensagemSucesso = '';
         vm.mensagemModalErro = '';
 
         if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
@@ -45,8 +103,11 @@ app.controller('ContaController', function(AuthService, ContaService) {
 
         vm.novaConta = {
             tipo: vm.tiposConta[0],
-            icone: vm.bancosDisponiveis[0].slug
+            codigoBanco: vm.bancosBrasil.length ? vm.bancosBrasil[0].code : '',
+            icone: 'generic'
         };
+
+        vm.atualizarPreview();
         vm.modalAberto = true;
     };
 
@@ -99,13 +160,24 @@ app.controller('ContaController', function(AuthService, ContaService) {
 
     vm.salvarConta = function() {
         var payload;
+        var mensagemValidacao;
 
         vm.mensagemModalErro = '';
+        vm.mensagemSucesso = '';
 
         if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
             vm.mensagemModalErro = 'Usuário não identificado na sessão atual.';
             return;
         }
+
+        mensagemValidacao = validarNovaConta();
+
+        if (mensagemValidacao) {
+            vm.mensagemModalErro = mensagemValidacao;
+            return;
+        }
+
+        vm.atualizarPreview();
 
         payload = {
             usuarioId: vm.usuarioLogado.id,
@@ -119,6 +191,7 @@ app.controller('ContaController', function(AuthService, ContaService) {
         ContaService.criar(payload)
             .then(function(response) {
                 vm.contas = [response.data].concat(vm.contas);
+                vm.mensagemSucesso = 'Conta criada com sucesso.';
                 vm.fecharModal(true);
             })
             .catch(function(error) {
@@ -175,6 +248,38 @@ app.controller('ContaController', function(AuthService, ContaService) {
         return fallback;
     }
 
+    function validarNovaConta() {
+        if (!vm.novaConta || !vm.novaConta.nome || !vm.novaConta.nome.trim()) {
+            return 'Informe o nome da conta.';
+        }
+
+        if (!vm.novaConta.tipo) {
+            return 'Selecione o tipo da conta.';
+        }
+
+        if (!vm.novaConta.codigoBanco) {
+            return 'Selecione um banco para a conta.';
+        }
+
+        return '';
+    }
+
+    function normalizarCodigoBanco(codigoBanco) {
+        var codigoNormalizado;
+
+        if (codigoBanco === null || codigoBanco === undefined) {
+            return '';
+        }
+
+        codigoNormalizado = codigoBanco.toString().trim();
+
+        if (!codigoNormalizado) {
+            return '';
+        }
+
+        return ('0000' + codigoNormalizado).slice(-4);
+    }
+
     vm.usuarioLogado = AuthService.getUsuarioLogado();
 
     if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
@@ -182,5 +287,6 @@ app.controller('ContaController', function(AuthService, ContaService) {
         return;
     }
 
+    vm.carregarBancos();
     vm.carregarContas();
 });

@@ -18,6 +18,10 @@
         {{ vm.mensagemErro }}
     </p>
 
+    <p class="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-300" ng-if="vm.mensagemSucesso">
+        {{ vm.mensagemSucesso }}
+    </p>
+
     <div class="grid grid-cols-1 gap-6 md:grid-cols-3" ng-if="vm.contas.length">
         <article
             ng-repeat="conta in vm.contas track by conta.id"
@@ -29,14 +33,14 @@
                 <div class="flex items-center gap-4">
                     <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#10b981]/15 bg-black/30">
                         <img
-                            ng-if="vm.ehImagemIcone(vm.getIcone(conta.icone))"
-                            ng-src="{{ vm.getIcone(conta.icone) }}"
+                            ng-if="conta.icone && conta.icone !== 'generic'"
+                            ng-src="assets/images/{{conta.icone}}.svg"
                             alt="{{ conta.nome }}"
                             class="h-9 w-9 object-contain"
                         >
                         <i
-                            ng-if="!vm.ehImagemIcone(vm.getIcone(conta.icone))"
-                            class="{{ vm.getIcone(conta.icone) }} text-xl text-emerald-300"
+                            ng-if="!conta.icone || conta.icone === 'generic'"
+                            class="fa-solid fa-building-columns text-2xl text-emerald-500"
                         ></i>
                     </div>
 
@@ -110,24 +114,34 @@
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <label for="tipoConta" class="mb-2 block text-sm font-medium text-zinc-300">Tipo</label>
-                        <select
-                            id="tipoConta"
+                        <financial-select
+                            input-id="tipoConta"
+                            items="vm.tiposConta"
                             ng-model="vm.novaConta.tipo"
-                            ng-options="tipo for tipo in vm.tiposConta"
-                            class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                            required
-                        ></select>
+                            placeholder="Selecione um tipo"
+                            empty-message="Nenhum tipo disponível."
+                            disabled="vm.salvandoConta"
+                        ></financial-select>
                     </div>
 
                     <div>
-                        <label for="bancoConta" class="mb-2 block text-sm font-medium text-zinc-300">Banco / Ícone</label>
-                        <select
-                            id="bancoConta"
-                            ng-model="vm.novaConta.icone"
-                            ng-options="banco.slug as banco.nome for banco in vm.bancosDisponiveis"
-                            class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                            required
-                        ></select>
+                        <label for="bancoConta" class="mb-2 block text-sm font-medium text-zinc-300">Banco</label>
+                        <financial-select
+                            input-id="bancoConta"
+                            items="vm.bancosBrasil"
+                            ng-model="vm.novaConta.codigoBanco"
+                            option-label="vm.formatarBanco(item)"
+                            option-value="item.code"
+                            searchable="true"
+                            disabled="vm.carregandoBancos || !vm.bancosBrasil.length"
+                            placeholder="Selecione um banco"
+                            empty-message="Nenhum banco encontrado."
+                            search-placeholder="Pesquisar banco por código ou nome"
+                            on-change="vm.atualizarPreview()"
+                        ></financial-select>
+                        <p class="mt-2 text-xs text-zinc-500" ng-if="vm.carregandoBancos">
+                            Carregando bancos da Brasil API...
+                        </p>
                     </div>
                 </div>
 
@@ -136,14 +150,14 @@
                     <div class="mt-4 flex items-center gap-4">
                         <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#10b981]/15 bg-black/30">
                             <img
-                                ng-if="vm.ehImagemIcone(vm.getIcone(vm.novaConta.icone))"
-                                ng-src="{{ vm.getIcone(vm.novaConta.icone) }}"
+                                ng-if="vm.novaConta.icone && vm.novaConta.icone !== 'generic'"
+                                ng-src="assets/images/{{vm.novaConta.icone}}.svg"
                                 alt="Pré-visualização do banco"
                                 class="h-9 w-9 object-contain"
                             >
                             <i
-                                ng-if="!vm.ehImagemIcone(vm.getIcone(vm.novaConta.icone))"
-                                class="{{ vm.getIcone(vm.novaConta.icone) }} text-xl text-emerald-300"
+                                ng-if="!vm.novaConta.icone || vm.novaConta.icone === 'generic'"
+                                class="fa-solid fa-building-columns text-2xl text-emerald-500"
                             ></i>
                         </div>
 
