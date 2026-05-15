@@ -2,6 +2,7 @@ package com.financial.management.domain.service;
 
 import com.financial.management.api.dto.DashboardResponseDTO;
 import com.financial.management.api.dto.GastosPorCategoriaDTO;
+import com.financial.management.api.dto.TendenciaDTO;
 import com.financial.management.domain.entity.Categoria;
 import com.financial.management.domain.entity.Transacao;
 import com.financial.management.domain.repository.TransacaoRepository;
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -61,6 +63,27 @@ public class DashboardService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public List<TendenciaDTO> obterTendenciasUltimos6Meses(UUID usuarioId) {
+        YearMonth mesAtual = YearMonth.now();
+        List<TendenciaDTO> tendencias = new ArrayList<>();
+
+        for (int indice = 5; indice >= 0; indice--) {
+            YearMonth competencia = mesAtual.minusMonths(indice);
+            LocalDate dataInicio = competencia.atDay(1);
+            LocalDate dataFim = competencia.atEndOfMonth();
+            List<Transacao> transacoes = transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(usuarioId, dataInicio, dataFim);
+
+            tendencias.add(new TendenciaDTO(
+                formatarMesAbreviado(competencia),
+                somarPorTipo(transacoes, "RECEITA"),
+                somarPorTipo(transacoes, "DESPESA")
+            ));
+        }
+
+        return tendencias;
+    }
+
     private YearMonth criarCompetencia(Integer mes, Integer ano) {
         LocalDate hoje = LocalDate.now();
         int mesCompetencia = mes != null ? mes : hoje.getMonthValue();
@@ -89,5 +112,10 @@ public class DashboardService {
 
     private BigDecimal valorOuZero(BigDecimal valor) {
         return valor != null ? valor : BigDecimal.ZERO;
+    }
+
+    private String formatarMesAbreviado(YearMonth competencia) {
+        String[] meses = {"Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"};
+        return meses[competencia.getMonthValue() - 1] + "/" + String.format("%02d", competencia.getYear() % 100);
     }
 }

@@ -57,22 +57,61 @@
 		</section>
 	</div>
 
-	<section class="mx-auto w-full max-w-5xl rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30 md:p-8">
-		<div class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-			<div>
-				<p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500/70">Analytics</p>
-				<h2 class="mt-2 text-2xl font-semibold text-zinc-100">Composição inteligente dos gastos</h2>
-				<p class="mt-2 text-sm text-zinc-400">Visualização doughnut com foco em categorias que mais pressionam o caixa.</p>
+	<div class="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_1fr]">
+		<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30 md:p-8">
+			<div class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+				<div>
+					<p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500/70">Insights</p>
+					<h2 class="mt-2 text-2xl font-semibold text-zinc-100">Evolução Financeira (Últimos 6 meses)</h2>
+					<p class="mt-2 text-sm text-zinc-400">Comparativo de entradas e saídas.</p>
+				</div>
+				<span class="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
+					Receitas vs Despesas
+				</span>
 			</div>
-			<span class="rounded-full border border-emerald-500/30 bg-emerald-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
-				{{ vm.competenciaLabel }}
-			</span>
-		</div>
 
-		<div class="mx-auto max-w-md rounded-2xl border border-[#10b981]/10 bg-[#050a08]/80 p-4 md:max-w-lg md:p-6">
-			<canvas id="gastosChart"></canvas>
-		</div>
+			<div class="rounded-2xl border border-[#10b981]/10 bg-[#050a08]/80 p-4 md:p-6">
+				<div ng-if="!vm.semDadosTendencias" class="relative h-72 sm:h-80 lg:h-96">
+					<canvas id="line" class="chart chart-line h-full w-full" chart-data="vm.lineData" chart-labels="vm.lineLabels" chart-series="vm.lineSeries" chart-colors="vm.lineColors" chart-options="vm.lineOptions"></canvas>
+				</div>
+				<div ng-if="vm.semDadosTendencias" class="flex min-h-[18rem] flex-col items-center justify-center rounded-2xl border border-dashed border-sky-500/20 bg-sky-500/5 px-6 py-10 text-center sm:min-h-[20rem]">
+					<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-300">
+						<i class="fa-solid fa-chart-line text-xl"></i>
+					</div>
+					<h3 class="mt-5 text-lg font-semibold text-zinc-100">Sem evolução para exibir</h3>
+					<p class="mt-2 max-w-md text-sm leading-6 text-zinc-400">Assim que houver receitas ou despesas nos últimos 6 meses, o comparativo aparecerá aqui com a linha de tendência.</p>
+				</div>
+			</div>
 
-		<p class="mt-4 text-sm text-red-400" ng-if="vm.mensagemErro">{{ vm.mensagemErro }}</p>
-	</section>
+			<p class="mt-4 text-sm text-red-400" ng-if="vm.mensagemErroTendencias">{{ vm.mensagemErroTendencias }}</p>
+		</section>
+
+		<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30 md:p-8">
+			<div class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+				<div>
+					<p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500/70">Analytics</p>
+					<h2 class="mt-2 text-2xl font-semibold text-zinc-100">Composição inteligente dos gastos</h2>
+					<p class="mt-2 text-sm text-zinc-400">Visualização doughnut com foco em categorias que mais pressionam o caixa.</p>
+				</div>
+				<span class="rounded-full border border-emerald-500/30 bg-emerald-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
+					{{ vm.competenciaLabel }}
+				</span>
+			</div>
+
+			<div class="mx-auto w-full max-w-md rounded-2xl border border-[#10b981]/10 bg-[#050a08]/80 p-4 md:max-w-lg md:p-6">
+				<div ng-if="!vm.semDadosGastos" class="mx-auto aspect-square w-full max-w-[22rem] sm:max-w-[26rem]">
+					<canvas id="gastosChart"></canvas>
+				</div>
+				<div ng-if="vm.semDadosGastos" class="flex min-h-[18rem] flex-col items-center justify-center rounded-2xl border border-dashed border-emerald-500/20 bg-emerald-500/5 px-6 py-10 text-center sm:min-h-[22rem]">
+					<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-300">
+						<i class="fa-solid fa-chart-pie text-xl"></i>
+					</div>
+					<h3 class="mt-5 text-lg font-semibold text-zinc-100">Sem gastos na competência</h3>
+					<p class="mt-2 max-w-sm text-sm leading-6 text-zinc-400">Quando houver despesas categorizadas em {{ vm.competenciaLabel }}, a composição visual aparecerá aqui automaticamente.</p>
+				</div>
+			</div>
+
+			<p class="mt-4 text-sm text-red-400" ng-if="vm.mensagemErro">{{ vm.mensagemErro }}</p>
+		</section>
+	</div>
 </div>
