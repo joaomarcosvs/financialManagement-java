@@ -62,8 +62,8 @@
             </div>
 
             <div class="relative mt-8 rounded-2xl border border-[#10b981]/10 bg-black/20 p-4">
-                <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">Saldo Atual</p>
-                <p class="mt-2 text-3xl font-semibold text-emerald-300">{{ conta.saldoAtual | currency:'R$ ' }}</p>
+                <p class="text-xs uppercase tracking-[0.22em] text-zinc-500">Saldo do Mês</p>
+                <p class="mt-2 text-3xl font-semibold" ng-class="{'text-rose-400': conta.saldoAtual < 0, 'text-emerald-300': conta.saldoAtual >= 0}">{{ conta.saldoAtual | currency:'R$ ' }}</p>
             </div>
         </article>
     </div>
@@ -244,8 +244,8 @@
                 </div>
 
                 <div class="mt-4 rounded-xl border border-[#10b981]/10 bg-black/20 px-4 py-3">
-                    <p class="text-xs uppercase tracking-[0.18em] text-zinc-500">Saldo atual</p>
-                    <p class="mt-1 text-lg font-semibold text-emerald-300">{{ vm.contaPendenteExclusao.saldoAtual | currency:'R$ ' }}</p>
+                    <p class="text-xs uppercase tracking-[0.18em] text-zinc-500">Saldo do mês</p>
+                    <p class="mt-1 text-lg font-semibold" ng-class="{'text-rose-400': vm.contaPendenteExclusao.saldoAtual < 0, 'text-emerald-300': vm.contaPendenteExclusao.saldoAtual >= 0}">{{ vm.contaPendenteExclusao.saldoAtual | currency:'R$ ' }}</p>
                 </div>
             </div>
 

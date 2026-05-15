@@ -21,6 +21,8 @@ public interface TransacaoRepository extends JpaRepository<Transacao, UUID> {
 
     List<Transacao> findAllByUsuario_Id(UUID usuarioId);
 
+    List<Transacao> findByUsuarioIdAndDataTransacaoBetween(UUID usuarioId, LocalDate dataInicial, LocalDate dataFinal);
+
     List<Transacao> findAllByConta_Id(UUID contaId);
 
     boolean existsByConta_Id(UUID contaId);

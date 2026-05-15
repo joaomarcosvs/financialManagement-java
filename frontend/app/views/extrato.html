@@ -5,13 +5,25 @@
             <p class="mt-2 text-sm text-zinc-500">Acompanhe todas as movimentações financeiras registradas na conta.</p>
         </div>
 
-        <button
-            type="button"
-            ng-click="vm.abrirModal()"
-            class="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
-        >
-            Nova Transação
-        </button>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="inline-flex items-center gap-3 rounded-2xl border border-[#10b981]/15 bg-[#080d0b] px-3 py-2 shadow-lg shadow-black/20">
+                <button type="button" ng-click="vm.mesAnterior()" class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-400 transition hover:bg-white/5 hover:text-zinc-100">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span class="min-w-[9rem] text-center text-sm font-semibold uppercase tracking-[0.18em] text-zinc-200">{{ vm.formatarMesAtual() }}</span>
+                <button type="button" ng-click="vm.proximoMes()" class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-400 transition hover:bg-white/5 hover:text-zinc-100">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <button
+                type="button"
+                ng-click="vm.abrirModal()"
+                class="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
+            >
+                Nova Transação
+            </button>
+        </div>
     </div>
 
     <section class="overflow-hidden rounded-2xl border border-[#10b981]/10 bg-[#080d0b]">
@@ -58,6 +70,20 @@
                             {{ t.valor | currency:'R$ ' }}
                         </td>
                         <td class="px-6 py-4 text-right">
+                            <button
+                                type="button"
+                                ng-click="vm.visualizarTransacao(t)"
+                                class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-400 transition hover:bg-white/5 hover:text-emerald-300"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button
+                                type="button"
+                                ng-click="vm.editarTransacao(t)"
+                                class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-sky-400 transition hover:bg-sky-500/10 hover:text-sky-300"
+                            >
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
                             <button
                                 type="button"
                                 ng-click="vm.excluirTransacao(t)"
@@ -165,8 +191,8 @@
         </div>
     </div>
 
-    <div ng-show="vm.modalAberto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-        <div class="w-full max-w-md rounded-2xl border border-[#10b981]/30 bg-[#0a1410] p-8 shadow-2xl shadow-emerald-500/20">
+    <div ng-if="vm.modalAberto" ng-click="vm.fecharModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm">
+        <div ng-click="$event.stopPropagation()" class="w-full max-w-3xl rounded-2xl border border-[#10b981]/30 bg-[#0a1410] p-8 shadow-2xl shadow-emerald-500/20">
             <div class="mb-6 flex items-start justify-between gap-4">
                 <div>
                     <h2 class="text-2xl font-semibold text-zinc-100">Nova Transação</h2>
@@ -200,10 +226,10 @@
                         <label for="valor" class="mb-2 block text-sm font-medium text-zinc-300">Valor</label>
                         <input
                             id="valor"
-                            type="number"
-                            step="0.01"
-                            min="0"
+                            type="text"
+                            inputmode="decimal"
                             ng-model="vm.novaTransacao.valor"
+                            mask-moeda
                             class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                             placeholder="0,00"
                             required
@@ -222,7 +248,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div>
                         <label for="conta" class="mb-2 block text-sm font-medium text-zinc-300">Conta</label>
                         <financial-select
@@ -243,6 +269,7 @@
                             input-id="tipo"
                             items="vm.tiposTransacao"
                             ng-model="vm.novaTransacao.tipo"
+                            on-change="vm.aoAlterarTipoTransacao()"
                             placeholder="Selecione um tipo"
                             empty-message="Nenhum tipo disponível."
                         ></financial-select>
@@ -252,7 +279,7 @@
                         <label for="categoria" class="mb-2 block text-sm font-medium text-zinc-300">Categoria</label>
                         <financial-select
                             input-id="categoria"
-                            items="vm.listaCategoriasReais"
+                            items="vm.listaCategoriasReais | filter:{ tipo: vm.novaTransacao.tipo }"
                             ng-model="vm.novaTransacao.categoriaId"
                             option-label="item.nome"
                             option-value="item.id"
@@ -260,6 +287,70 @@
                             placeholder="Selecione uma categoria"
                             empty-message="Nenhuma categoria disponível."
                         ></financial-select>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-[#10b981]/15 bg-black/20 p-5">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-zinc-200">Transação Fixa / Recorrente</p>
+                            <p class="mt-1 max-w-xl text-xs leading-5 text-zinc-500">Repita automaticamente esta movimentação conforme a frequência escolhida.</p>
+                        </div>
+
+                        <label class="relative inline-flex cursor-pointer items-center">
+                            <input
+                                type="checkbox"
+                                class="peer sr-only"
+                                ng-model="vm.novaTransacao.recorrente"
+                                ng-change="vm.aoAlterarRecorrencia()"
+                            >
+                            <span class="h-7 w-12 rounded-full border border-white/10 bg-zinc-700 transition peer-checked:border-emerald-400/40 peer-checked:bg-emerald-500"></span>
+                            <span class="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+                        </label>
+                    </div>
+
+                    <div ng-if="vm.novaTransacao.recorrente" class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div>
+                            <label for="frequencia" class="mb-2 block text-sm font-medium text-zinc-300">Frequência</label>
+                            <financial-select
+                                input-id="frequencia"
+                                items="vm.frequenciasRecorrencia"
+                                ng-model="vm.novaTransacao.frequencia"
+                                option-label="item.nome"
+                                option-value="item.valor"
+                                panel-position="auto"
+                                placeholder="Selecione a frequência"
+                                empty-message="Nenhuma frequência disponível."
+                            ></financial-select>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-zinc-300">Mês Final</label>
+                            <financial-select
+                                input-id="mesFimRecorrencia"
+                                items="vm.mesesRecorrencia"
+                                ng-model="vm.novaTransacao.mesFimRecorrencia"
+                                option-label="item.nome"
+                                option-value="item.valor"
+                                panel-position="auto"
+                                placeholder="Selecione o mês"
+                                empty-message="Nenhum mês disponível."
+                            ></financial-select>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-zinc-300">Ano Final</label>
+                            <financial-select
+                                input-id="anoFimRecorrencia"
+                                items="vm.anosRecorrencia"
+                                ng-model="vm.novaTransacao.anoFimRecorrencia"
+                                option-label="item.nome"
+                                option-value="item.valor"
+                                panel-position="auto"
+                                placeholder="Selecione o ano"
+                                empty-message="Nenhum ano disponível."
+                            ></financial-select>
+                        </div>
                     </div>
                 </div>
 

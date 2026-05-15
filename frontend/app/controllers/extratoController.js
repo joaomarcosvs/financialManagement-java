@@ -1,11 +1,51 @@
-app.controller('ExtratoController', function(AuthService, CategoriaService, ContaService, TransacaoService) {
+app.controller('ExtratoController', function($document, $scope, AuthService, CategoriaService, ContaService, TransacaoService) {
     var vm = this;
+    var dataAtual = new Date();
+    var nomesMeses = [
+        'Janeiro',
+        'Fevereiro',
+        'Marco',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro'
+    ];
 
     vm.usuarioLogado = null;
     vm.transacoes = [];
     vm.contas = [];
     vm.listaCategoriasReais = [];
+    vm.mesAtual = dataAtual.getMonth() + 1;
+    vm.anoAtual = dataAtual.getFullYear();
     vm.tiposTransacao = ['RECEITA', 'DESPESA'];
+    vm.frequenciasRecorrencia = [
+        { valor: 'DIARIA', nome: 'Diariamente' },
+        { valor: 'SEMANAL', nome: 'Semanalmente' },
+        { valor: 'MENSAL', nome: 'Mensal' },
+        { valor: 'TRIMESTRAL', nome: 'Trimestral' },
+        { valor: 'SEMESTRAL', nome: 'Semestral' },
+        { valor: 'ANUAL', nome: 'Anual' }
+    ];
+    vm.mesesRecorrencia = [
+        { valor: 1, nome: 'Janeiro' },
+        { valor: 2, nome: 'Fevereiro' },
+        { valor: 3, nome: 'Marco' },
+        { valor: 4, nome: 'Abril' },
+        { valor: 5, nome: 'Maio' },
+        { valor: 6, nome: 'Junho' },
+        { valor: 7, nome: 'Julho' },
+        { valor: 8, nome: 'Agosto' },
+        { valor: 9, nome: 'Setembro' },
+        { valor: 10, nome: 'Outubro' },
+        { valor: 11, nome: 'Novembro' },
+        { valor: 12, nome: 'Dezembro' }
+    ];
+    vm.anosRecorrencia = construirAnosRecorrencia();
     vm.mensagemErro = '';
     vm.mensagemModalErro = '';
     vm.modalAberto = false;
@@ -14,9 +54,68 @@ app.controller('ExtratoController', function(AuthService, CategoriaService, Cont
     vm.transacaoPendenteExclusao = null;
     vm.excluindoTransacaoId = null;
 
+    vm.obterCategoriasPorTipo = function(tipo) {
+        if (!tipo) {
+            return vm.listaCategoriasReais.slice();
+        }
+
+        return vm.listaCategoriasReais.filter(function(categoria) {
+            return categoria && categoria.tipo === tipo;
+        });
+    };
+
+    vm.aoAlterarTipoTransacao = function() {
+        if (!vm.novaTransacao) {
+            return;
+        }
+
+        vm.novaTransacao.categoriaId = null;
+    };
+
+    vm.aoAlterarRecorrencia = function() {
+        if (!vm.novaTransacao) {
+            return;
+        }
+
+        if (!vm.novaTransacao.recorrente) {
+            vm.novaTransacao.frequencia = 'MENSAL';
+            aplicarLimiteRecorrenciaPadrao();
+            return;
+        }
+
+        aplicarLimiteRecorrenciaPadrao();
+    };
+
+    vm.formatarMesAtual = function() {
+        return nomesMeses[vm.mesAtual - 1] + ' ' + vm.anoAtual;
+    };
+
+    vm.mesAnterior = function() {
+        if (vm.mesAtual === 1) {
+            vm.mesAtual = 12;
+            vm.anoAtual -= 1;
+        } else {
+            vm.mesAtual -= 1;
+        }
+
+        vm.carregarTransacoes();
+    };
+
+    vm.proximoMes = function() {
+        if (vm.mesAtual === 12) {
+            vm.mesAtual = 1;
+            vm.anoAtual += 1;
+        } else {
+            vm.mesAtual += 1;
+        }
+
+        vm.carregarTransacoes();
+    };
+
     vm.abrirModal = function() {
         vm.mensagemErro = '';
         vm.mensagemModalErro = '';
+        var categoriasPadrao;
 
         if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
             vm.mensagemErro = 'Usuário não identificado na sessão atual.';
@@ -33,17 +132,24 @@ app.controller('ExtratoController', function(AuthService, CategoriaService, Cont
             return;
         }
 
+        categoriasPadrao = vm.obterCategoriasPorTipo('DESPESA');
+
         vm.novaTransacao = {
             tipo: 'DESPESA',
             contaId: vm.contas[0].id,
-            categoriaId: vm.listaCategoriasReais[0].id
+            categoriaId: categoriasPadrao.length ? categoriasPadrao[0].id : null,
+            recorrente: false,
+            frequencia: 'MENSAL'
         };
+
+        aplicarLimiteRecorrenciaPadrao();
         vm.modalAberto = true;
     };
 
     vm.fecharModal = function() {
         vm.modalAberto = false;
         vm.mensagemModalErro = '';
+        vm.novaTransacao = {};
     };
 
     vm.fecharModalExclusao = function(forcarFechamento) {
@@ -64,7 +170,7 @@ app.controller('ExtratoController', function(AuthService, CategoriaService, Cont
 
         vm.mensagemErro = '';
 
-        TransacaoService.listarPorUsuario(vm.usuarioLogado.id)
+        TransacaoService.listarPorUsuario(vm.usuarioLogado.id, vm.mesAtual, vm.anoAtual)
             .then(function(response) {
                 vm.transacoes = response.data || [];
             })
@@ -120,11 +226,25 @@ app.controller('ExtratoController', function(AuthService, CategoriaService, Cont
             valor: parseFloat(vm.novaTransacao.valor),
             dataTransacao: dataTransacao,
             descricao: vm.novaTransacao.descricao,
-            status: vm.novaTransacao.tipo
+            status: vm.novaTransacao.tipo,
+            recorrente: !!vm.novaTransacao.recorrente,
+            frequencia: vm.novaTransacao.recorrente ? vm.novaTransacao.frequencia : null,
+            mesFimRecorrencia: vm.novaTransacao.recorrente ? parseInt(vm.novaTransacao.mesFimRecorrencia, 10) : null,
+            anoFimRecorrencia: vm.novaTransacao.recorrente ? parseInt(vm.novaTransacao.anoFimRecorrencia, 10) : null
         };
 
         if (!payload.contaId || !payload.categoriaId) {
             vm.mensagemModalErro = 'Selecione uma conta e uma categoria válidas.';
+            return;
+        }
+
+        if (payload.recorrente && (!payload.frequencia || !payload.mesFimRecorrencia || !payload.anoFimRecorrencia)) {
+            vm.mensagemModalErro = 'Informe a frequência e até quando a transação deve se repetir.';
+            return;
+        }
+
+        if (payload.recorrente && !limiteRecorrenciaEhValido(dataTransacao, payload.mesFimRecorrencia, payload.anoFimRecorrencia)) {
+            vm.mensagemModalErro = 'O período final da recorrência deve ser igual ou posterior à data da transação.';
             return;
         }
 
@@ -158,6 +278,9 @@ app.controller('ExtratoController', function(AuthService, CategoriaService, Cont
         vm.transacaoPendenteExclusao = transacao;
         vm.modalExclusaoAberto = true;
     };
+
+    vm.visualizarTransacao = angular.noop;
+    vm.editarTransacao = angular.noop;
 
     vm.confirmarExclusao = function() {
         var mensagemErro = 'Não foi possível excluir a transação.';
@@ -200,6 +323,12 @@ app.controller('ExtratoController', function(AuthService, CategoriaService, Cont
 
     vm.usuarioLogado = AuthService.getUsuarioLogado();
 
+    $document.on('keydown', handleKeydown);
+
+    $scope.$on('$destroy', function() {
+        $document.off('keydown', handleKeydown);
+    });
+
     if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
         vm.mensagemErro = 'Usuário não identificado na sessão atual.';
         return;
@@ -208,4 +337,64 @@ app.controller('ExtratoController', function(AuthService, CategoriaService, Cont
     vm.carregarTransacoes();
     vm.carregarContas();
     vm.carregarCategorias();
+
+    function handleKeydown(event) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+
+        $scope.$applyAsync(function() {
+            if (vm.modalExclusaoAberto) {
+                vm.fecharModalExclusao();
+                return;
+            }
+
+            if (vm.modalAberto) {
+                vm.fecharModal();
+            }
+        });
+    }
+
+    function aplicarLimiteRecorrenciaPadrao() {
+        var dataBase = obterDataBaseRecorrencia();
+
+        vm.novaTransacao.mesFimRecorrencia = dataBase.getMonth() + 1;
+        vm.novaTransacao.anoFimRecorrencia = dataBase.getFullYear();
+    }
+
+    function obterDataBaseRecorrencia() {
+        if (vm.novaTransacao && vm.novaTransacao.dataTransacao) {
+            if (vm.novaTransacao.dataTransacao instanceof Date) {
+                return vm.novaTransacao.dataTransacao;
+            }
+
+            return new Date(vm.novaTransacao.dataTransacao + 'T00:00:00');
+        }
+
+        return dataAtual;
+    }
+
+    function limiteRecorrenciaEhValido(dataTransacao, mesFim, anoFim) {
+        var dataBase = dataTransacao instanceof Date
+            ? new Date(dataTransacao.getTime())
+            : new Date(dataTransacao + 'T00:00:00');
+        var limite = new Date(anoFim, mesFim, 0);
+
+        return !isNaN(dataBase.getTime()) && !isNaN(limite.getTime()) && limite >= dataBase;
+    }
+
+    function construirAnosRecorrencia() {
+        var anoInicial = dataAtual.getFullYear();
+        var anos = [];
+        var indice;
+
+        for (indice = 0; indice < 11; indice += 1) {
+            anos.push({
+                valor: anoInicial + indice,
+                nome: (anoInicial + indice).toString()
+            });
+        }
+
+        return anos;
+    }
 });

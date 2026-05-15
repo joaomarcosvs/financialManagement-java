@@ -2,11 +2,26 @@ app.controller('DashboardController', function(AuthService, DashboardService, $t
     var vm = this;
     var gastosChart;
     var agora = new Date();
-    var mes = agora.getMonth() + 1;
-    var ano = agora.getFullYear();
+    var nomesMeses = [
+        'Janeiro',
+        'Fevereiro',
+        'Marco',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro'
+    ];
 
     vm.usuarioLogado = AuthService.getUsuarioLogado();
-    vm.competenciaLabel = ('0' + mes).slice(-2) + '/' + ano;
+    vm.mesAtual = agora.getMonth() + 1;
+    vm.anoAtual = agora.getFullYear();
+    vm.competenciaLabel = '';
+    vm.saldoAtual = 0;
     vm.dados = {
         saldoAtualTotal: 0,
         totalReceitas: 0,
@@ -15,7 +30,35 @@ app.controller('DashboardController', function(AuthService, DashboardService, $t
     };
     vm.mensagemErro = '';
 
-    vm.carregarDados = function() {
+    vm.formatarMesAtual = function() {
+        return nomesMeses[vm.mesAtual - 1] + ' ' + vm.anoAtual;
+    };
+
+    vm.mesAnterior = function() {
+        if (vm.mesAtual === 1) {
+            vm.mesAtual = 12;
+            vm.anoAtual -= 1;
+        } else {
+            vm.mesAtual -= 1;
+        }
+
+        atualizarCompetenciaLabel();
+        vm.carregarDashboard();
+    };
+
+    vm.proximoMes = function() {
+        if (vm.mesAtual === 12) {
+            vm.mesAtual = 1;
+            vm.anoAtual += 1;
+        } else {
+            vm.mesAtual += 1;
+        }
+
+        atualizarCompetenciaLabel();
+        vm.carregarDashboard();
+    };
+
+    vm.carregarDashboard = function() {
         vm.mensagemErro = '';
 
         if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
@@ -23,9 +66,10 @@ app.controller('DashboardController', function(AuthService, DashboardService, $t
             return;
         }
 
-        DashboardService.obterResumo(vm.usuarioLogado.id, mes, ano)
+        DashboardService.obterResumo(vm.usuarioLogado.id, vm.mesAtual, vm.anoAtual)
             .then(function(response) {
                 vm.dados = response.data;
+                vm.saldoAtual = Number((vm.dados && vm.dados.saldoAtualTotal) || 0);
 
                 $timeout(function() {
                     renderizarGrafico(vm.dados.gastosPorCategoria || []);
@@ -35,6 +79,8 @@ app.controller('DashboardController', function(AuthService, DashboardService, $t
                 vm.mensagemErro = 'Não foi possível carregar o resumo do dashboard.';
             });
     };
+
+            vm.carregarDados = vm.carregarDashboard;
 
     function renderizarGrafico(gastos) {
         var canvas = document.getElementById('gastosChart');
@@ -87,5 +133,10 @@ app.controller('DashboardController', function(AuthService, DashboardService, $t
         });
     }
 
-    vm.carregarDados();
+    atualizarCompetenciaLabel();
+    vm.carregarDashboard();
+
+    function atualizarCompetenciaLabel() {
+        vm.competenciaLabel = vm.formatarMesAtual();
+    }
 });

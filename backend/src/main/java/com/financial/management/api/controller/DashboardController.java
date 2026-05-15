@@ -21,8 +21,8 @@ public class DashboardController {
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<DashboardResponseDTO> buscarDashboard(
         @PathVariable UUID usuarioId,
-        @RequestParam int mes,
-        @RequestParam int ano
+        @RequestParam(required = false) Integer mes,
+        @RequestParam(required = false) Integer ano
     ) {
         return ResponseEntity.ok(dashboardService.buscarDashboard(usuarioId, mes, ano));
     }

@@ -1,4 +1,6 @@
-app.directive('financialSelect', function($document, $timeout) {
+app.directive('financialSelect', function($document, $rootScope, $timeout) {
+    var ultimoInstanceId = 0;
+
     return {
         restrict: 'E',
         scope: {
@@ -10,6 +12,7 @@ app.directive('financialSelect', function($document, $timeout) {
             emptyMessage: '@?',
             searchPlaceholder: '@?',
             inputId: '@?',
+            panelPosition: '@?',
             optionLabel: '&?',
             optionValue: '&?',
             onChange: '&?'
@@ -26,7 +29,7 @@ app.directive('financialSelect', function($document, $timeout) {
             '        <span class="min-w-0 truncate text-sm" ng-class="{\'text-zinc-500\': !selectedLabel, \'text-zinc-100\': selectedLabel}">{{ selectedLabel || placeholderText }}</span>',
             '        <i class="fa-solid fa-chevron-down text-xs transition" ng-class="{\'rotate-180 text-emerald-400\': dropdownAberto, \'text-zinc-500\': !dropdownAberto}"></i>',
             '    </button>',
-            '    <div ng-if="dropdownAberto" class="financial-select-panel absolute left-0 right-0 top-full z-[80] mt-2 overflow-hidden rounded-2xl border border-[#10b981]/20 bg-[#07100c] shadow-2xl shadow-black/40">',
+            '    <div ng-if="dropdownAberto" ng-class="dropdownPanelClass" class="financial-select-panel absolute left-0 right-0 z-[80] overflow-hidden rounded-2xl border border-[#10b981]/20 bg-[#07100c] shadow-2xl shadow-black/40">',
             '        <div ng-if="searchable" class="border-b border-[#10b981]/10 p-3">',
             '            <div class="financial-select-search flex items-center gap-3 rounded-xl border border-[#10b981]/15 bg-black/30 px-3 py-2.5">',
             '                <i class="fa-solid fa-magnifying-glass text-sm text-emerald-400"></i>',
@@ -56,10 +59,13 @@ app.directive('financialSelect', function($document, $timeout) {
             '</div>'
         ].join(''),
         link: function(scope, element) {
+            var instanceId = 'financial-select-' + (++ultimoInstanceId);
+
             scope.searchable = scope.searchable === true || scope.searchable === 'true';
             scope.placeholderText = scope.placeholder || 'Selecione uma opção';
             scope.emptyMessageText = scope.emptyMessage || 'Nenhum item encontrado.';
             scope.searchPlaceholderText = scope.searchPlaceholder || 'Pesquisar...';
+            scope.dropdownPanelClass = resolverClassePainel(scope.panelPosition);
             scope.dropdownAberto = false;
             scope.ui = {
                 searchTerm: ''
@@ -166,6 +172,11 @@ app.directive('financialSelect', function($document, $timeout) {
                     closeDropdown();
                 }
             });
+            scope.$on('financial-select:opened', function(event, openedInstanceId) {
+                if (openedInstanceId !== instanceId) {
+                    closeDropdown();
+                }
+            });
 
             $document.on('click', handleDocumentClick);
 
@@ -174,9 +185,12 @@ app.directive('financialSelect', function($document, $timeout) {
             });
 
             function openDropdown() {
+                $rootScope.$broadcast('financial-select:opened', instanceId);
                 scope.dropdownAberto = true;
                 scope.ui.searchTerm = '';
                 syncVisibleItems();
+
+                $timeout(atualizarDirecaoDropdown);
 
                 if (scope.searchable) {
                     $timeout(focusSearchInput);
@@ -194,6 +208,39 @@ app.directive('financialSelect', function($document, $timeout) {
                 if (input) {
                     input.focus();
                 }
+            }
+
+            function atualizarDirecaoDropdown() {
+                var posicaoForcada = (scope.panelPosition || 'auto').toLowerCase();
+                var trigger = element[0].querySelector('button');
+                var painel = element[0].querySelector('.financial-select-panel');
+                var triggerRect;
+                var alturaViewport;
+                var espacoAbaixo;
+                var espacoAcima;
+                var alturaPainel;
+
+                if (!scope.dropdownAberto || !trigger || !painel) {
+                    return;
+                }
+
+                if (posicaoForcada === 'top' || posicaoForcada === 'bottom') {
+                    scope.dropdownPanelClass = resolverClassePainel(posicaoForcada);
+                    return;
+                }
+
+                triggerRect = trigger.getBoundingClientRect();
+                alturaViewport = window.innerHeight || document.documentElement.clientHeight || 0;
+                espacoAbaixo = alturaViewport - triggerRect.bottom;
+                espacoAcima = triggerRect.top;
+                alturaPainel = Math.min(painel.scrollHeight || 0, 320) + 16;
+
+                if (espacoAbaixo < alturaPainel && espacoAcima > espacoAbaixo) {
+                    scope.dropdownPanelClass = resolverClassePainel('top');
+                    return;
+                }
+
+                scope.dropdownPanelClass = resolverClassePainel('bottom');
             }
 
             function handleDocumentClick(event) {
@@ -255,6 +302,10 @@ app.directive('financialSelect', function($document, $timeout) {
                 }
 
                 return primeiroValor.toString() === segundoValor.toString();
+            }
+
+            function resolverClassePainel(posicao) {
+                return (posicao || '').toLowerCase() === 'top' ? 'bottom-full mb-2' : 'top-full mt-2';
             }
 
             syncVisibleItems();

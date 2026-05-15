@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -53,15 +54,25 @@ public class TransacaoController {
             .dataTransacao(request.dataTransacao())
             .descricao(request.descricao())
             .status(request.status())
+            .recorrente(Boolean.TRUE.equals(request.recorrente()))
             .build();
 
-        Transacao transacaoSalva = transacaoService.salvarTransacao(transacao);
+        Transacao transacaoSalva = transacaoService.salvarTransacao(
+            transacao,
+            request.frequencia(),
+            request.mesFimRecorrencia(),
+            request.anoFimRecorrencia()
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDTO(transacaoSalva));
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<TransacaoResponseDTO>> buscarPorUsuario(@PathVariable UUID usuarioId) {
-        List<TransacaoResponseDTO> response = transacaoService.buscarPorUsuario(usuarioId)
+    public ResponseEntity<List<TransacaoResponseDTO>> buscarPorUsuario(
+        @PathVariable UUID usuarioId,
+        @RequestParam(required = false) Integer mes,
+        @RequestParam(required = false) Integer ano
+    ) {
+        List<TransacaoResponseDTO> response = transacaoService.buscarPorUsuario(usuarioId, mes, ano)
             .stream()
             .map(this::toResponseDTO)
             .toList();

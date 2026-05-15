@@ -5,6 +5,10 @@ import com.financial.management.domain.entity.Transacao;
 import com.financial.management.domain.repository.ContaRepository;
 import com.financial.management.domain.repository.TransacaoRepository;
 import java.math.BigDecimal;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -23,8 +27,14 @@ public class TransacaoService {
     private final ContaRepository contaRepository;
 
     @Transactional
-    public Transacao salvarTransacao(Transacao transacao) {
+    public Transacao salvarTransacao(
+        Transacao transacao,
+        String frequencia,
+        Integer mesFimRecorrencia,
+        Integer anoFimRecorrencia
+    ) {
         validarTransacao(transacao);
+        validarConfiguracaoRecorrencia(transacao, mesFimRecorrencia, anoFimRecorrencia);
 
         Conta conta = buscarConta(transacao.getConta().getId());
 
@@ -37,6 +47,10 @@ public class TransacaoService {
                     contaRepository.save(contaAnterior);
                 }
             });
+        }
+
+        if (deveGerarRecorrencias(transacao)) {
+            return salvarTransacoesRecorrentes(transacao, conta, frequencia, mesFimRecorrencia, anoFimRecorrencia);
         }
 
         aplicarSaldo(conta, transacao);
@@ -59,8 +73,14 @@ public class TransacaoService {
     }
 
     @Transactional(readOnly = true)
-    public List<Transacao> buscarPorUsuario(UUID id) {
-        return transacaoRepository.findAllByUsuario_Id(id);
+    public List<Transacao> buscarPorUsuario(UUID id, Integer mes, Integer ano) {
+        YearMonth competencia = criarCompetencia(mes, ano);
+
+        return transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(
+            id,
+            competencia.atDay(1),
+            competencia.atEndOfMonth()
+        );
     }
 
     @Transactional(readOnly = true)
@@ -120,6 +140,91 @@ public class TransacaoService {
 
         if (transacao.getConta() == null || transacao.getConta().getId() == null) {
             throw new IllegalArgumentException("A transação deve informar uma conta válida.");
+        }
+    }
+
+    private boolean deveGerarRecorrencias(Transacao transacao) {
+        return transacao.getId() == null && transacao.isRecorrente();
+    }
+
+    private void validarConfiguracaoRecorrencia(Transacao transacao, Integer mesFimRecorrencia, Integer anoFimRecorrencia) {
+        if (!transacao.isRecorrente()) {
+            return;
+        }
+
+        if (mesFimRecorrencia == null || mesFimRecorrencia < 1 || mesFimRecorrencia > 12 || anoFimRecorrencia == null) {
+            throw new IllegalArgumentException("Informe um mês e ano válidos para o fim da recorrência.");
+        }
+
+        LocalDate dataLimite = construirDataLimiteRecorrencia(mesFimRecorrencia, anoFimRecorrencia);
+
+        if (dataLimite.isBefore(transacao.getDataTransacao())) {
+            throw new IllegalArgumentException("O período final da recorrência deve ser igual ou posterior à data da transação.");
+        }
+    }
+
+    private Transacao salvarTransacoesRecorrentes(
+        Transacao transacao,
+        Conta conta,
+        String frequencia,
+        Integer mesFimRecorrencia,
+        Integer anoFimRecorrencia
+    ) {
+        LocalDate dataLimite = construirDataLimiteRecorrencia(mesFimRecorrencia, anoFimRecorrencia);
+        List<Transacao> transacoes = new ArrayList<>();
+        LocalDate dataRecorrencia = transacao.getDataTransacao();
+
+        while (!dataRecorrencia.isAfter(dataLimite)) {
+            Transacao transacaoRecorrente = Transacao.builder()
+                .conta(conta)
+                .categoria(transacao.getCategoria())
+                .usuario(transacao.getUsuario())
+                .valor(transacao.getValor())
+                .dataTransacao(dataRecorrencia)
+                .descricao(transacao.getDescricao())
+                .status(transacao.getStatus())
+                .recorrente(true)
+                .build();
+
+            aplicarSaldo(conta, transacaoRecorrente);
+            transacoes.add(transacaoRecorrente);
+            dataRecorrencia = calcularProximaDataRecorrente(dataRecorrencia, frequencia);
+        }
+
+        contaRepository.save(conta);
+
+        return transacaoRepository.saveAll(transacoes).get(0);
+    }
+
+    private LocalDate construirDataLimiteRecorrencia(Integer mesFimRecorrencia, Integer anoFimRecorrencia) {
+        return YearMonth.of(anoFimRecorrencia, mesFimRecorrencia).atEndOfMonth();
+    }
+
+    private LocalDate calcularProximaDataRecorrente(LocalDate dataBase, String frequencia) {
+        String frequenciaNormalizada = (frequencia == null || frequencia.isBlank())
+            ? "MENSAL"
+            : frequencia.trim().toUpperCase(Locale.ROOT);
+
+        return switch (frequenciaNormalizada) {
+            case "DIARIA" -> dataBase.plusDays(1);
+            case "SEMANAL" -> dataBase.plusWeeks(1);
+            case "TRIMESTRAL" -> dataBase.plusMonths(3);
+            case "SEMESTRAL" -> dataBase.plusMonths(6);
+            case "ANUAL" -> dataBase.plusYears(1);
+            case "MENSAL" -> dataBase.plusMonths(1);
+            default -> throw new IllegalArgumentException("Frequência de recorrência inválida.");
+        };
+    }
+
+    private YearMonth criarCompetencia(Integer mes, Integer ano) {
+        LocalDate hoje = LocalDate.now();
+        int mesCompetencia = mes != null ? mes : hoje.getMonthValue();
+        int anoCompetencia = ano != null ? ano : hoje.getYear();
+
+        try {
+            return YearMonth.of(anoCompetencia, mesCompetencia);
+        } catch (DateTimeException exception) {
+            throw new IllegalArgumentException("Mês ou ano inválido para o extrato.", exception);
         }
     }
 }
