@@ -1,17 +1,36 @@
 var app = angular.module('financialApp', ['ui.router']);
 
-app.factory('AuthInterceptor', function($window) {
+app.run(function($rootScope, $window) {
+    $rootScope.modoPrivacidade = $window.localStorage.getItem('privacidade') === 'true';
+});
+
+app.factory('AuthInterceptor', function($q, $window) {
+    function limparSessao() {
+        $window.localStorage.removeItem('jwt_token');
+        $window.localStorage.removeItem('usuario_id');
+        $window.localStorage.removeItem('usuario_nome');
+        $window.localStorage.removeItem('usuario_logado');
+    }
+
     return {
         request: function(config) {
             var token = $window.localStorage.getItem('jwt_token');
             var isLoginRequest = config.url && config.url.indexOf('/api/v1/auth/login') !== -1;
+            var isRegistroRequest = config.url && config.url.indexOf('/api/v1/usuarios') !== -1 && config.method === 'POST';
 
-            if (token && !isLoginRequest) {
+            if (token && !isLoginRequest && !isRegistroRequest) {
                 config.headers = config.headers || {};
                 config.headers.Authorization = 'Bearer ' + token;
             }
 
             return config;
+        },
+        responseError: function(rejection) {
+            if (rejection && rejection.status === 401) {
+                limparSessao();
+            }
+
+            return $q.reject(rejection);
         }
     };
 });
@@ -53,6 +72,12 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
             url: '/perfil',
             templateUrl: 'app/views/perfil.html',
             controller: 'PerfilController',
+            controllerAs: 'vm'
+        })
+        .state('app.configuracoes', {
+            url: '/configuracoes',
+            templateUrl: 'app/views/configuracoes.html',
+            controller: 'ConfiguracoesController',
             controllerAs: 'vm'
         })
         .state('app.contas', {

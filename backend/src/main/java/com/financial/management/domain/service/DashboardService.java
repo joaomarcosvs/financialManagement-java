@@ -2,6 +2,7 @@ package com.financial.management.domain.service;
 
 import com.financial.management.api.dto.DashboardResponseDTO;
 import com.financial.management.api.dto.GastosPorCategoriaDTO;
+import com.financial.management.domain.entity.Categoria;
 import com.financial.management.domain.entity.Transacao;
 import com.financial.management.domain.repository.TransacaoRepository;
 import java.math.BigDecimal;
@@ -39,13 +40,17 @@ public class DashboardService {
             .filter(transacao -> tipoEh(transacao, "DESPESA"))
             .filter(transacao -> transacao.getCategoria() != null && transacao.getCategoria().getNome() != null)
             .collect(Collectors.groupingBy(
-                transacao -> transacao.getCategoria().getNome(),
+                Transacao::getCategoria,
                 Collectors.mapping(Transacao::getValor, Collectors.reducing(BigDecimal.ZERO, this::valorOuZero, BigDecimal::add))
             ))
             .entrySet()
             .stream()
-            .sorted(Map.Entry.<String, BigDecimal>comparingByValue().reversed())
-            .map(item -> new GastosPorCategoriaDTO(item.getKey(), valorOuZero(item.getValue())))
+            .sorted(Map.Entry.<Categoria, BigDecimal>comparingByValue().reversed())
+            .map(item -> new GastosPorCategoriaDTO(
+                item.getKey().getNome(),
+                valorOuZero(item.getValue()),
+                item.getKey().getCor()
+            ))
             .toList();
 
         return new DashboardResponseDTO(

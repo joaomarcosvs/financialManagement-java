@@ -5,6 +5,7 @@ import com.financial.management.api.dto.UsuarioRequestDTO;
 import com.financial.management.api.dto.UsuarioSenhaRequestDTO;
 import com.financial.management.domain.entity.Conta;
 import com.financial.management.domain.entity.Usuario;
+import com.financial.management.domain.repository.CategoriaRepository;
 import com.financial.management.domain.repository.ContaRepository;
 import com.financial.management.domain.repository.ContaUsuarioRepository;
 import com.financial.management.domain.repository.TransacaoRepository;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final CategoriaRepository categoriaRepository;
     private final ContaRepository contaRepository;
     private final ContaUsuarioRepository contaUsuarioRepository;
     private final TransacaoRepository transacaoRepository;
@@ -89,6 +91,7 @@ public class UsuarioService {
         });
 
         transacaoRepository.deleteAllByUsuarioId(id);
+        categoriaRepository.deleteAllByUsuario_Id(id);
 
         contaUsuarioRepository.deleteAllByUsuarioId(id);
 

@@ -1,7 +1,15 @@
-app.controller('DashboardController', function(AuthService, DashboardService, $timeout) {
+app.controller('DashboardController', function(AuthService, DashboardService, $rootScope, $timeout) {
     var vm = this;
     var gastosChart;
     var agora = new Date();
+    var paletaPadrao = [
+        '#10b981',
+        '#34d399',
+        '#6ee7b7',
+        '#059669',
+        '#047857',
+        '#a7f3d0'
+    ];
     var nomesMeses = [
         'Janeiro',
         'Fevereiro',
@@ -103,14 +111,9 @@ app.controller('DashboardController', function(AuthService, DashboardService, $t
                     data: gastos.map(function(item) {
                         return Number(item.valor);
                     }),
-                    backgroundColor: [
-                        '#10b981',
-                        '#34d399',
-                        '#6ee7b7',
-                        '#059669',
-                        '#047857',
-                        '#a7f3d0'
-                    ],
+                    backgroundColor: gastos.map(function(item, index) {
+                        return item.cor || paletaPadrao[index % paletaPadrao.length];
+                    }),
                     borderColor: '#0f172a',
                     borderWidth: 3,
                     hoverOffset: 10
@@ -120,6 +123,14 @@ app.controller('DashboardController', function(AuthService, DashboardService, $t
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
+                    tooltip: {
+                        enabled: !$rootScope.modoPrivacidade,
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + formatarMoeda(context.raw);
+                            }
+                        }
+                    },
                     legend: {
                         position: 'bottom',
                         labels: {
@@ -138,5 +149,12 @@ app.controller('DashboardController', function(AuthService, DashboardService, $t
 
     function atualizarCompetenciaLabel() {
         vm.competenciaLabel = vm.formatarMesAtual();
+    }
+
+    function formatarMoeda(valor) {
+        return Number(valor || 0).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
     }
 });

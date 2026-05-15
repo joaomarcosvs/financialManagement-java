@@ -56,6 +56,17 @@
                 </span>
                 <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Extrato</span>
             </a>
+            <a
+                ui-sref="app.configuracoes"
+                ui-sref-active="bg-[#10b981]/10 text-emerald-400"
+                class="flex items-center rounded-xl p-3 text-sm font-medium text-zinc-400 transition-all duration-300 hover:bg-[#10b981]/10 hover:text-emerald-400"
+                ng-class="{'justify-center': !mainVm.sidebarAberta, 'justify-start gap-3': mainVm.sidebarAberta}"
+            >
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/30 text-emerald-400">
+                    <i class="fa-solid fa-gear"></i>
+                </span>
+                <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Configurações</span>
+            </a>
         </nav>
     </aside>
 
@@ -87,13 +98,14 @@
                                 <i class="fa-regular fa-user text-emerald-400"></i>
                                 Perfil
                             </a>
-                            <button
-                                type="button"
+                            <a
+                                ui-sref="app.configuracoes"
+                                ng-click="mainVm.menuAberto = false"
                                 class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-zinc-100"
                             >
                                 <i class="fa-solid fa-gear text-emerald-400"></i>
                                 Configurações
-                            </button>
+                            </a>
                             <button
                                 type="button"
                                 ng-click="mainVm.logout()"

@@ -67,7 +67,7 @@
                                 'text-zinc-200': t.tipo !== 'RECEITA' && t.tipo !== 'DESPESA'
                             }"
                         >
-                            {{ t.valor | currency:'R$ ' }}
+                            {{ t.valor | mascaraPrivacidade }}
                         </td>
                         <td class="px-6 py-4 text-right">
                             <button
@@ -157,7 +157,7 @@
                                 'text-zinc-200': vm.transacaoPendenteExclusao.tipo !== 'RECEITA' && vm.transacaoPendenteExclusao.tipo !== 'DESPESA'
                             }"
                         >
-                            {{ vm.transacaoPendenteExclusao.valor | currency:'R$ ' }}
+                            {{ vm.transacaoPendenteExclusao.valor | mascaraPrivacidade }}
                         </p>
                     </div>
                 </div>

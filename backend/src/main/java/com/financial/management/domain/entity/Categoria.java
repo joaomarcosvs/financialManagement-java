@@ -6,9 +6,10 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,12 +21,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(
-    name = "categorias",
-    uniqueConstraints = @UniqueConstraint(name = "categorias_nome_tipo_unique", columnNames = {"nome", "tipo"})
-)
+@Table(name = "categorias")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,6 +48,11 @@ public class Categoria {
     @Column(name = "cor", length = 9)
     private String cor;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
+    @CreationTimestamp
     @Column(name = "criado_em", nullable = false, updatable = false)
     private OffsetDateTime criadoEm;
 

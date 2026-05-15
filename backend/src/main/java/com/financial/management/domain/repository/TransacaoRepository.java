@@ -27,6 +27,8 @@ public interface TransacaoRepository extends JpaRepository<Transacao, UUID> {
 
     boolean existsByConta_Id(UUID contaId);
 
+    boolean existsByCategoria_Id(UUID categoriaId);
+
     @Modifying
     @Query("delete from Transacao t where t.usuario.id = :usuarioId")
     void deleteAllByUsuarioId(@Param("usuarioId") UUID usuarioId);

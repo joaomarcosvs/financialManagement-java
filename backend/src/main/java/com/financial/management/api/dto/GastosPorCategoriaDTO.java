@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public record GastosPorCategoriaDTO(
     String categoria,
-    BigDecimal valor
+    BigDecimal valor,
+    String cor
 ) {
 }

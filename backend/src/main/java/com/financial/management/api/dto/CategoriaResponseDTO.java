@@ -6,6 +6,7 @@ public record CategoriaResponseDTO(
     UUID id,
     String nome,
     String tipo,
-    String cor
+    String cor,
+    boolean global
 ) {
 }
