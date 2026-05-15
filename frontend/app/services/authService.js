@@ -1,4 +1,4 @@
-app.factory('AuthService', function($http, $window) {
+app.factory('AuthService', function($http, $rootScope, $window) {
     var tokenStorageKey = 'jwt_token';
     var userIdStorageKey = 'usuario_id';
     var userNameStorageKey = 'usuario_nome';
@@ -12,6 +12,7 @@ app.factory('AuthService', function($http, $window) {
         };
 
         $window.localStorage.setItem(userStorageKey, JSON.stringify(usuarioLogado));
+        $rootScope.$broadcast('usuario-logado-atualizado', usuarioLogado);
     }
 
     function limparArmazenamento() {
@@ -76,6 +77,24 @@ app.factory('AuthService', function($http, $window) {
                 id: this.getUsuarioId(),
                 nome: this.getUsuarioNome() || ''
             };
+        },
+        atualizarUsuarioLogado: function(usuario) {
+            if (!usuario) {
+                return;
+            }
+
+            if (usuario.id) {
+                $window.localStorage.setItem(userIdStorageKey, usuario.id);
+            }
+
+            if (usuario.nome) {
+                $window.localStorage.setItem(userNameStorageKey, usuario.nome);
+            }
+
+            salvarUsuarioLogado({
+                usuarioId: usuario.id || this.getUsuarioId(),
+                nome: usuario.nome || this.getUsuarioNome()
+            });
         },
         salvarMensagemRegistro: function(mensagem) {
             $window.sessionStorage.setItem(registroFlashMessageKey, mensagem || 'Conta criada com sucesso. Faça login para continuar.');

@@ -79,13 +79,14 @@
                         </div>
 
                         <div class="p-2">
-                            <button
-                                type="button"
+                            <a
+                                ui-sref="app.perfil"
+                                ng-click="mainVm.menuAberto = false"
                                 class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-zinc-100"
                             >
                                 <i class="fa-regular fa-user text-emerald-400"></i>
                                 Perfil
-                            </button>
+                            </a>
                             <button
                                 type="button"
                                 class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-zinc-300 transition hover:bg-zinc-900 hover:text-zinc-100"

@@ -1,0 +1,149 @@
+<div class="space-y-8">
+    <div>
+        <h1 class="text-3xl font-semibold text-zinc-100">Meu Perfil</h1>
+        <p class="mt-2 text-sm text-zinc-500">Gerencie suas informações pessoais e preferências de segurança.</p>
+    </div>
+
+    <section class="rounded-2xl border border-[#10b981]/20 bg-[#080d0b] p-6 shadow-lg shadow-black/20">
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-zinc-100">Informações Pessoais</h2>
+                <p class="text-sm text-zinc-500">Atualize seu nome e telefone. O e-mail permanece como identificador principal.</p>
+            </div>
+            <span class="rounded-full border border-[#10b981]/15 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400" ng-if="vm.carregandoPerfil">
+                Carregando
+            </span>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="md:col-span-2">
+                <label for="perfilNome" class="mb-2 block text-sm font-medium text-zinc-300">Nome</label>
+                <input
+                    id="perfilNome"
+                    type="text"
+                    ng-model="vm.usuario.nome"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    placeholder="Seu nome completo"
+                >
+            </div>
+
+            <div>
+                <label for="perfilEmail" class="mb-2 block text-sm font-medium text-zinc-300">E-mail</label>
+                <input
+                    id="perfilEmail"
+                    type="email"
+                    ng-model="vm.usuario.email"
+                    readonly
+                    class="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-zinc-500 outline-none"
+                >
+            </div>
+
+            <div>
+                <label for="perfilTelefone" class="mb-2 block text-sm font-medium text-zinc-300">Telefone</label>
+                <input
+                    id="perfilTelefone"
+                    type="text"
+                    ng-model="vm.usuario.telefone"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    placeholder="(11) 99999-9999"
+                >
+            </div>
+        </div>
+
+        <p class="mt-4 text-sm font-medium text-rose-400" ng-if="vm.mensagemPerfilErro">{{ vm.mensagemPerfilErro }}</p>
+        <p class="mt-4 text-sm font-medium text-emerald-300" ng-if="vm.mensagemPerfilSucesso">{{ vm.mensagemPerfilSucesso }}</p>
+
+        <div class="mt-6 flex justify-end">
+            <button
+                type="button"
+                ng-click="vm.salvarPerfil()"
+                ng-disabled="vm.salvandoPerfil || vm.carregandoPerfil"
+                class="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
+                ng-class="{ 'cursor-not-allowed opacity-60': vm.salvandoPerfil || vm.carregandoPerfil }"
+            >
+                <span ng-if="!vm.salvandoPerfil">Salvar Alterações</span>
+                <span ng-if="vm.salvandoPerfil">Salvando...</span>
+            </button>
+        </div>
+    </section>
+
+    <section class="rounded-2xl border border-[#10b981]/20 bg-[#080d0b] p-6 shadow-lg shadow-black/20">
+        <div>
+            <h2 class="text-xl font-semibold text-zinc-100">Alterar Senha</h2>
+            <p class="mt-2 text-sm text-zinc-500">Mantenha sua conta protegida atualizando sua senha periodicamente.</p>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+                <label for="senhaAtual" class="mb-2 block text-sm font-medium text-zinc-300">Senha Atual</label>
+                <input
+                    id="senhaAtual"
+                    type="password"
+                    ng-model="vm.senhas.senhaAtual"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    placeholder="Digite sua senha atual"
+                >
+            </div>
+
+            <div>
+                <label for="novaSenha" class="mb-2 block text-sm font-medium text-zinc-300">Nova Senha</label>
+                <input
+                    id="novaSenha"
+                    type="password"
+                    ng-model="vm.senhas.novaSenha"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    placeholder="Nova senha"
+                >
+            </div>
+
+            <div>
+                <label for="confirmarNovaSenha" class="mb-2 block text-sm font-medium text-zinc-300">Confirmar Nova Senha</label>
+                <input
+                    id="confirmarNovaSenha"
+                    type="password"
+                    ng-model="vm.senhas.confirmarNovaSenha"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    placeholder="Confirme a nova senha"
+                >
+            </div>
+        </div>
+
+        <p class="mt-4 text-sm font-medium text-rose-400" ng-if="vm.mensagemSenhaErro">{{ vm.mensagemSenhaErro }}</p>
+        <p class="mt-4 text-sm font-medium text-emerald-300" ng-if="vm.mensagemSenhaSucesso">{{ vm.mensagemSenhaSucesso }}</p>
+
+        <div class="mt-6 flex justify-end">
+            <button
+                type="button"
+                ng-click="vm.salvarNovaSenha()"
+                ng-disabled="vm.salvandoSenha"
+                class="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
+                ng-class="{ 'cursor-not-allowed opacity-60': vm.salvandoSenha }"
+            >
+                <span ng-if="!vm.salvandoSenha">Atualizar Senha</span>
+                <span ng-if="vm.salvandoSenha">Atualizando...</span>
+            </button>
+        </div>
+    </section>
+
+    <section class="rounded-2xl border border-rose-500/30 bg-[#080d0b] p-6 shadow-lg shadow-black/20">
+        <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-rose-400">Danger Zone</p>
+            <h2 class="mt-3 text-xl font-semibold text-zinc-100">Excluir Conta</h2>
+            <p class="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+                Ao excluir sua conta, todos os seus dados, contas e transações serão apagados permanentemente. Esta ação não pode ser desfeita.
+            </p>
+        </div>
+
+        <p class="mt-4 text-sm font-medium text-rose-400" ng-if="vm.mensagemZonaPerigoErro">{{ vm.mensagemZonaPerigoErro }}</p>
+
+        <div class="mt-6 flex justify-end">
+            <button
+                type="button"
+                ng-click="vm.confirmarExclusao()"
+                class="rounded-xl bg-red-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-red-500/20 transition hover:bg-red-600"
+            >
+                Excluir minha conta permanentemente
+            </button>
+        </div>
+    </section>
+</div>

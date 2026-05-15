@@ -49,6 +49,12 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
             controller: 'DashboardController',
             controllerAs: 'vm'
         })
+        .state('app.perfil', {
+            url: '/perfil',
+            templateUrl: 'app/views/perfil.html',
+            controller: 'PerfilController',
+            controllerAs: 'vm'
+        })
         .state('app.contas', {
             url: '/contas',
             templateUrl: 'app/views/contas.html',

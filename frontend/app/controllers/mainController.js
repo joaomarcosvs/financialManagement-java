@@ -1,10 +1,9 @@
-app.controller('MainController', function($state, AuthService) {
+app.controller('MainController', function($scope, $state, AuthService) {
     var vm = this;
-    var usuarioLogado = AuthService.getUsuarioLogado();
 
     vm.menuAberto = false;
     vm.sidebarAberta = true;
-    vm.usuario = montarUsuario(usuarioLogado);
+    vm.usuario = montarUsuario(AuthService.getUsuarioLogado());
 
     vm.toggleMenu = function() {
         vm.menuAberto = !vm.menuAberto;
@@ -18,6 +17,10 @@ app.controller('MainController', function($state, AuthService) {
         AuthService.limparToken();
         $state.go('login');
     };
+
+    $scope.$on('usuario-logado-atualizado', function(event, usuarioAtualizado) {
+        vm.usuario = montarUsuario(usuarioAtualizado);
+    });
 
     function montarUsuario(usuarioLogadoAtual) {
         var nome = usuarioLogadoAtual && usuarioLogadoAtual.nome ? usuarioLogadoAtual.nome.trim() : '';

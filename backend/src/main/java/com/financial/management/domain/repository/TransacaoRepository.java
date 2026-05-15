@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -23,6 +24,10 @@ public interface TransacaoRepository extends JpaRepository<Transacao, UUID> {
     List<Transacao> findAllByConta_Id(UUID contaId);
 
     boolean existsByConta_Id(UUID contaId);
+
+    @Modifying
+    @Query("delete from Transacao t where t.usuario.id = :usuarioId")
+    void deleteAllByUsuarioId(@Param("usuarioId") UUID usuarioId);
 
     List<Transacao> findAllByDataTransacaoBetween(LocalDate dataInicio, LocalDate dataFim);
 
