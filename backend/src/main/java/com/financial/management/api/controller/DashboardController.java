@@ -32,7 +32,21 @@ public class DashboardController {
     }
 
     @GetMapping("/tendencias")
-    public ResponseEntity<List<TendenciaDTO>> buscarTendencias(@AuthenticationPrincipal Usuario usuarioLogado) {
-        return ResponseEntity.ok(dashboardService.obterTendenciasUltimos6Meses(usuarioLogado.getId()));
+    public ResponseEntity<List<TendenciaDTO>> buscarTendencias(
+        @AuthenticationPrincipal Usuario usuarioLogado,
+        @RequestParam(required = false) Integer mesInicio,
+        @RequestParam(required = false) Integer anoInicio,
+        @RequestParam(required = false) Integer mesFim,
+        @RequestParam(required = false) Integer anoFim
+    ) {
+        return ResponseEntity.ok(
+            dashboardService.obterTendenciasPorPeriodo(
+                usuarioLogado.getId(),
+                mesInicio,
+                anoInicio,
+                mesFim,
+                anoFim
+            )
+        );
     }
 }

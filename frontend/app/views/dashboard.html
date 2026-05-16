@@ -62,12 +62,36 @@
 			<div class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 				<div>
 					<p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500/70">Insights</p>
-					<h2 class="mt-2 text-2xl font-semibold text-zinc-100">Evolução Financeira (Últimos 6 meses)</h2>
-					<p class="mt-2 text-sm text-zinc-400">Comparativo de entradas e saídas.</p>
+					<h2 class="mt-2 text-2xl font-semibold text-zinc-100">Acompanhamento Financeiro</h2>
 				</div>
-				<span class="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
-					Receitas vs Despesas
-				</span>
+				<div class="grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
+					<label class="flex flex-col gap-2 rounded-2xl border border-sky-500/20 bg-sky-500/5 px-4 py-3">
+						<span class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-sky-300/80">Competência início</span>
+						<input
+							type="text"
+							ng-model="vm.competenciaInicioTendencia"
+							mask-competencia
+							ng-change="vm.aoAlterarIntervaloTendencias('inicio')"
+							inputmode="numeric"
+							maxlength="7"
+							placeholder="MM-yyyy"
+							class="rounded-xl border border-white/10 bg-[#020617] px-3 py-2 text-sm font-medium text-zinc-100 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
+						>
+					</label>
+					<label class="flex flex-col gap-2 rounded-2xl border border-sky-500/20 bg-sky-500/5 px-4 py-3">
+						<span class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-sky-300/80">Competência fim</span>
+						<input
+							type="text"
+							ng-model="vm.competenciaFimTendencia"
+							mask-competencia
+							ng-change="vm.aoAlterarIntervaloTendencias('fim')"
+							inputmode="numeric"
+							maxlength="7"
+							placeholder="MM-yyyy"
+							class="rounded-xl border border-white/10 bg-[#020617] px-3 py-2 text-sm font-medium text-zinc-100 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
+						>
+					</label>
+				</div>
 			</div>
 
 			<div class="rounded-2xl border border-[#10b981]/10 bg-[#050a08]/80 p-4 md:p-6">
@@ -79,7 +103,7 @@
 						<i class="fa-solid fa-chart-line text-xl"></i>
 					</div>
 					<h3 class="mt-5 text-lg font-semibold text-zinc-100">Sem evolução para exibir</h3>
-					<p class="mt-2 max-w-md text-sm leading-6 text-zinc-400">Assim que houver receitas ou despesas nos últimos 6 meses, o comparativo aparecerá aqui com a linha de tendência.</p>
+					<p class="mt-2 max-w-md text-sm leading-6 text-zinc-400">Assim que houver receitas ou despesas entre {{ vm.intervaloTendenciasLabel || 'as competências selecionadas' }}, o comparativo aparecerá aqui com a linha de tendência.</p>
 				</div>
 			</div>
 

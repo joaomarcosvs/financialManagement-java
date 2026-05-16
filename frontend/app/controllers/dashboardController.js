@@ -21,7 +21,10 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
     vm.usuarioLogado = AuthService.getUsuarioLogado();
     vm.mesAtual = agora.getMonth() + 1;
     vm.anoAtual = agora.getFullYear();
+    vm.competenciaInicioTendencia = formatarCompetenciaNumerica(1, vm.anoAtual);
+    vm.competenciaFimTendencia = formatarCompetenciaNumerica(vm.mesAtual, vm.anoAtual);
     vm.competenciaLabel = '';
+    vm.intervaloTendenciasLabel = '';
     vm.semDadosGastos = false;
     vm.semDadosTendencias = false;
     vm.saldoAtual = 0;
@@ -85,6 +88,38 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
         vm.carregarDashboard();
     };
 
+    vm.aoAlterarIntervaloTendencias = function(origem) {
+        var competenciaInicio = normalizarCompetencia(vm.competenciaInicioTendencia);
+        var competenciaFim = normalizarCompetencia(vm.competenciaFimTendencia);
+
+        vm.mensagemErroTendencias = '';
+
+        if (!competenciaEstaCompleta(vm.competenciaInicioTendencia) || !competenciaEstaCompleta(vm.competenciaFimTendencia)) {
+            return;
+        }
+
+        if (!competenciaInicio || !competenciaFim) {
+            vm.mensagemErroTendencias = 'Informe competências válidas no formato MM-yyyy.';
+            return;
+        }
+
+        if (competenciaInicio.getTime() > competenciaFim.getTime()) {
+            if (origem === 'inicio') {
+                vm.competenciaFimTendencia = formatarCompetenciaMesAno(criarDataCompetencia(
+                    competenciaInicio.getFullYear(),
+                    competenciaInicio.getMonth() + 1
+                ));
+            } else {
+                vm.competenciaInicioTendencia = formatarCompetenciaMesAno(criarDataCompetencia(
+                    competenciaFim.getFullYear(),
+                    competenciaFim.getMonth() + 1
+                ));
+            }
+        }
+
+        vm.carregarTendencias();
+    };
+
     vm.carregarDashboard = function() {
         vm.mensagemErro = '';
 
@@ -112,9 +147,17 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
     };
 
     vm.carregarTendencias = function() {
+        var intervalo = obterIntervaloTendenciasSelecionado();
+
         vm.mensagemErroTendencias = '';
 
-        DashboardService.obterTendencias()
+        if (!intervalo) {
+            return;
+        }
+
+        vm.intervaloTendenciasLabel = intervalo.label;
+
+        DashboardService.obterTendencias(intervalo.mesInicio, intervalo.anoInicio, intervalo.mesFim, intervalo.anoFim)
             .then(function(response) {
                 var tendencias = response.data || [];
 
@@ -136,7 +179,7 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
                 });
             })
             .catch(function() {
-                vm.mensagemErroTendencias = 'Não foi possível carregar a evolução financeira.';
+                vm.mensagemErroTendencias = 'Não foi possível carregar o acompanhamento financeiro.';
                 vm.semDadosTendencias = true;
             });
     };
@@ -273,10 +316,6 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
                         ticks: {
                             color: '#94a3b8',
                             callback: function(valor) {
-                                if ($rootScope.modoPrivacidade) {
-                                    return '';
-                                }
-
                                 return formatarMoeda(valor);
                             }
                         },
@@ -295,6 +334,69 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
 
     function atualizarCompetenciaLabel() {
         vm.competenciaLabel = vm.formatarCompetenciaAtual();
+    }
+
+    function obterIntervaloTendenciasSelecionado() {
+        var competenciaInicio = normalizarCompetencia(vm.competenciaInicioTendencia);
+        var competenciaFim = normalizarCompetencia(vm.competenciaFimTendencia);
+
+        if (!competenciaEstaCompleta(vm.competenciaInicioTendencia) || !competenciaEstaCompleta(vm.competenciaFimTendencia)) {
+            return null;
+        }
+
+        if (!competenciaInicio || !competenciaFim) {
+            vm.mensagemErroTendencias = 'Informe competências válidas no formato MM-yyyy.';
+            return null;
+        }
+
+        if (competenciaInicio.getTime() > competenciaFim.getTime()) {
+            vm.mensagemErroTendencias = 'A competência inicial deve ser menor ou igual à competência final.';
+            return null;
+        }
+
+        return {
+            mesInicio: competenciaInicio.getMonth() + 1,
+            anoInicio: competenciaInicio.getFullYear(),
+            mesFim: competenciaFim.getMonth() + 1,
+            anoFim: competenciaFim.getFullYear(),
+            label: formatarCompetenciaMesAno(competenciaInicio) + ' até ' + formatarCompetenciaMesAno(competenciaFim)
+        };
+    }
+
+    function normalizarCompetencia(valor) {
+        var partes;
+        var ano;
+        var mes;
+
+        if (typeof valor === 'string' && /^\d{2}-\d{4}$/.test(valor)) {
+            partes = valor.split('-');
+            mes = Number(partes[0]);
+            ano = Number(partes[1]);
+
+            if (!ano || !mes || mes < 1 || mes > 12) {
+                return null;
+            }
+
+            return criarDataCompetencia(ano, mes);
+        }
+
+        return null;
+    }
+
+    function criarDataCompetencia(ano, mes) {
+        return new Date(ano, mes - 1, 1);
+    }
+
+    function formatarCompetenciaMesAno(data) {
+        return formatarCompetenciaNumerica(data.getMonth() + 1, data.getFullYear());
+    }
+
+    function formatarCompetenciaNumerica(mes, ano) {
+        return String(mes).padStart(2, '0') + '-' + ano;
+    }
+
+    function competenciaEstaCompleta(valor) {
+        return typeof valor === 'string' && /^\d{2}-\d{4}$/.test(valor);
     }
 
     function formatarMoeda(valor) {

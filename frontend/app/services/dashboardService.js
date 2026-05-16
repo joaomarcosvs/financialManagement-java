@@ -10,8 +10,15 @@ app.factory('DashboardService', function($http) {
                 }
             });
         },
-        obterTendencias: function() {
-            return $http.get(apiUrl + '/tendencias');
+        obterTendencias: function(mesInicio, anoInicio, mesFim, anoFim) {
+            return $http.get(apiUrl + '/tendencias', {
+                params: {
+                    mesInicio: mesInicio,
+                    anoInicio: anoInicio,
+                    mesFim: mesFim,
+                    anoFim: anoFim
+                }
+            });
         }
     };
 });

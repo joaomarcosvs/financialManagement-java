@@ -64,12 +64,22 @@ public class DashboardService {
     }
 
     @Transactional(readOnly = true)
-    public List<TendenciaDTO> obterTendenciasUltimos6Meses(UUID usuarioId) {
-        YearMonth mesAtual = YearMonth.now();
+    public List<TendenciaDTO> obterTendenciasPorPeriodo(
+        UUID usuarioId,
+        Integer mesInicio,
+        Integer anoInicio,
+        Integer mesFim,
+        Integer anoFim
+    ) {
+        YearMonth competenciaInicial = criarCompetenciaTendenciaInicial(mesInicio, anoInicio);
+        YearMonth competenciaFinal = criarCompetenciaTendenciaFinal(mesFim, anoFim);
         List<TendenciaDTO> tendencias = new ArrayList<>();
 
-        for (int indice = 5; indice >= 0; indice--) {
-            YearMonth competencia = mesAtual.minusMonths(indice);
+        if (competenciaInicial.isAfter(competenciaFinal)) {
+            throw new IllegalArgumentException("A competência inicial deve ser menor ou igual à competência final.");
+        }
+
+        for (YearMonth competencia = competenciaInicial; !competencia.isAfter(competenciaFinal); competencia = competencia.plusMonths(1)) {
             LocalDate dataInicio = competencia.atDay(1);
             LocalDate dataFim = competencia.atEndOfMonth();
             List<Transacao> transacoes = transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(usuarioId, dataInicio, dataFim);
@@ -93,6 +103,37 @@ public class DashboardService {
             return YearMonth.of(anoCompetencia, mesCompetencia);
         } catch (DateTimeException exception) {
             throw new IllegalArgumentException("Mês ou ano inválido para o dashboard.", exception);
+        }
+    }
+
+    private YearMonth criarCompetenciaTendenciaInicial(Integer mes, Integer ano) {
+        LocalDate hoje = LocalDate.now();
+
+        return criarCompetenciaComPadrao(
+            mes,
+            ano,
+            YearMonth.of(hoje.getYear(), 1),
+            "Competência inicial inválida para o gráfico."
+        );
+    }
+
+    private YearMonth criarCompetenciaTendenciaFinal(Integer mes, Integer ano) {
+        return criarCompetenciaComPadrao(
+            mes,
+            ano,
+            YearMonth.now(),
+            "Competência final inválida para o gráfico."
+        );
+    }
+
+    private YearMonth criarCompetenciaComPadrao(Integer mes, Integer ano, YearMonth padrao, String mensagemErro) {
+        int mesCompetencia = mes != null ? mes : padrao.getMonthValue();
+        int anoCompetencia = ano != null ? ano : padrao.getYear();
+
+        try {
+            return YearMonth.of(anoCompetencia, mesCompetencia);
+        } catch (DateTimeException exception) {
+            throw new IllegalArgumentException(mensagemErro, exception);
         }
     }
 

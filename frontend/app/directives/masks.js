@@ -129,3 +129,47 @@ app.directive('maskMoeda', function() {
         }
     };
 });
+
+app.directive('maskCompetencia', function() {
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModelCtrl) {
+            ngModelCtrl.$formatters.push(formatarCompetencia);
+            ngModelCtrl.$parsers.push(formatarCompetencia);
+
+            ngModelCtrl.$render = function() {
+                element.val(ngModelCtrl.$viewValue || '');
+            };
+
+            element.on('input', aoDigitar);
+
+            scope.$on('$destroy', function() {
+                element.off('input', aoDigitar);
+            });
+
+            function aoDigitar() {
+                var valorFormatado = formatarCompetencia(element.val());
+
+                scope.$applyAsync(function() {
+                    ngModelCtrl.$setViewValue(valorFormatado);
+                    ngModelCtrl.$render();
+                });
+            }
+
+            function formatarCompetencia(valor) {
+                var digitos = (valor || '').toString().replace(/\D/g, '').slice(0, 6);
+
+                if (!digitos) {
+                    return '';
+                }
+
+                if (digitos.length <= 2) {
+                    return digitos;
+                }
+
+                return digitos.slice(0, 2) + '-' + digitos.slice(2);
+            }
+        }
+    };
+});
