@@ -57,15 +57,15 @@
                 <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Extrato</span>
             </a>
             <a
-                ui-sref="app.configuracoes"
+                ui-sref="app.metas"
                 ui-sref-active="bg-[#10b981]/10 text-emerald-400"
                 class="flex items-center rounded-xl p-3 text-sm font-medium text-zinc-400 transition-all duration-300 hover:bg-[#10b981]/10 hover:text-emerald-400"
                 ng-class="{'justify-center': !mainVm.sidebarAberta, 'justify-start gap-3': mainVm.sidebarAberta}"
             >
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/30 text-emerald-400">
-                    <i class="fa-solid fa-gear"></i>
+                    <i class="fa-solid fa-bullseye"></i>
                 </span>
-                <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Configurações</span>
+                <span ng-show="mainVm.sidebarAberta" class="whitespace-nowrap">Metas</span>
             </a>
         </nav>
     </aside>

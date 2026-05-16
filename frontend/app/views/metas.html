@@ -1,0 +1,210 @@
+<div class="space-y-8">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-semibold text-zinc-100">Metas de Gastos</h1>
+            <p class="mt-2 text-sm text-zinc-500">Acompanhe limites por categoria e identifique rapidamente quando uma meta estiver sob pressão.</p>
+        </div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="inline-flex items-center gap-3 rounded-2xl border border-[#10b981]/15 bg-[#080d0b] px-3 py-2 shadow-lg shadow-black/20">
+                <button type="button" ng-click="vm.mesAnterior()" class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-400 transition hover:bg-white/5 hover:text-zinc-100">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span class="min-w-[9rem] text-center text-sm font-semibold uppercase tracking-[0.18em] text-zinc-200">{{ vm.formatarMesAtual() }}</span>
+                <button type="button" ng-click="vm.proximoMes()" class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-400 transition hover:bg-white/5 hover:text-zinc-100">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <button
+                type="button"
+                ng-click="vm.abrirModal()"
+                class="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
+            >
+                Definir Nova Meta
+            </button>
+        </div>
+    </div>
+
+    <p class="rounded-2xl border border-rose-500/20 bg-rose-500/10 px-5 py-4 text-sm text-rose-300" ng-if="vm.mensagemErro">
+        {{ vm.mensagemErro }}
+    </p>
+
+    <p class="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-300" ng-if="vm.mensagemSucesso">
+        {{ vm.mensagemSucesso }}
+    </p>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3" ng-if="vm.metas.length">
+        <section
+            ng-repeat="meta in vm.metas track by meta.metaId"
+            class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30"
+        >
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500/70">Budget</p>
+                    <h2 class="mt-2 text-2xl font-semibold text-zinc-100">{{ meta.nomeCategoria }}</h2>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        ng-click="vm.abrirModal(meta)"
+                        class="inline-flex h-11 w-11 items-center justify-center rounded-xl text-sky-400 transition hover:bg-sky-500/10 hover:text-sky-300"
+                    >
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button
+                        type="button"
+                        ng-click="vm.abrirModalExclusao(meta)"
+                        class="inline-flex h-11 w-11 items-center justify-center rounded-xl text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <p class="mt-6 text-sm text-zinc-400">
+                <span class="font-semibold text-zinc-100">{{ meta.valorGasto | mascaraPrivacidade }}</span>
+                de
+                <span class="font-semibold text-zinc-100">{{ meta.valorLimite | mascaraPrivacidade }}</span>
+            </p>
+
+            <div class="mt-5 h-3 overflow-hidden rounded-full bg-white/5">
+                <div
+                    class="h-full rounded-full transition-all duration-300"
+                    ng-class="vm.obterClasseProgresso(meta.percentualGasto)"
+                    ng-style="{ width: vm.obterLarguraProgresso(meta.percentualGasto) }"
+                ></div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between text-sm">
+                <span class="text-zinc-500">Consumo da meta</span>
+                <span class="font-semibold text-zinc-100">{{ meta.percentualGasto || 0 | number:0 }}%</span>
+            </div>
+        </section>
+    </div>
+
+    <div ng-if="!vm.metas.length && !vm.mensagemErro" class="rounded-2xl border border-dashed border-[#10b981]/20 bg-[#080d0b] px-6 py-14 text-center shadow-2xl">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-300">
+            <i class="fa-solid fa-bullseye text-xl"></i>
+        </div>
+        <h2 class="mt-5 text-xl font-semibold text-zinc-100">Nenhuma meta definida</h2>
+        <p class="mt-2 text-sm text-zinc-500">Crie metas por categoria para acompanhar seu orçamento mensal e agir antes de ultrapassar o limite.</p>
+    </div>
+
+    <div ng-if="vm.modalMetaAberto" ng-click="vm.fecharModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+        <div ng-click="$event.stopPropagation()" class="w-full max-w-lg rounded-2xl border border-[#10b981]/25 bg-[#0a1410] p-8 shadow-2xl shadow-emerald-500/20">
+            <div class="mb-6 flex items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-semibold text-zinc-100">{{ vm.metaEmEdicaoId ? 'Editar Meta' : 'Nova Meta' }}</h2>
+                    <p class="mt-2 text-sm text-zinc-400">Escolha uma categoria de despesa e defina o limite desejado.</p>
+                </div>
+
+                <button type="button" ng-click="vm.fecharModal()" class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form ng-submit="vm.salvarMeta()" class="space-y-5">
+                <div>
+                    <label for="metaCategoria" class="mb-2 block text-sm font-medium text-zinc-300">Categoria</label>
+                    <financial-select
+                        input-id="metaCategoria"
+                        items="vm.categoriasDespesa"
+                        ng-model="vm.formMeta.categoriaId"
+                        placeholder="Selecione a categoria"
+                        empty-message="Nenhuma categoria de despesa disponível."
+                    ></financial-select>
+                </div>
+
+                <div>
+                    <label for="metaValorLimite" class="mb-2 block text-sm font-medium text-zinc-300">Valor limite</label>
+                    <input id="metaValorLimite" type="text" ng-model="vm.formMeta.valorLimite" mask-moeda class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" placeholder="R$ 0,00" required>
+                </div>
+
+                <p class="text-sm font-medium text-rose-400" ng-if="vm.mensagemModalErro">{{ vm.mensagemModalErro }}</p>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" ng-click="vm.fecharModal()" class="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/5 hover:text-zinc-100">Cancelar</button>
+                    <button type="submit" ng-disabled="vm.salvandoMeta" class="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400" ng-class="{ 'cursor-not-allowed opacity-60': vm.salvandoMeta }">
+                        <span ng-if="!vm.salvandoMeta">{{ vm.metaEmEdicaoId ? 'Atualizar Meta' : 'Salvar Meta' }}</span>
+                        <span ng-if="vm.salvandoMeta">Salvando...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div ng-show="vm.modalExclusaoAberto" ng-click="vm.fecharModalExclusao()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+        <div ng-click="$event.stopPropagation()" class="w-full max-w-lg rounded-2xl border border-[#10b981]/25 bg-[#0a1410] p-8 shadow-2xl shadow-emerald-500/20">
+            <div class="mb-6 flex items-start justify-between gap-4">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#10b981]/20 bg-emerald-500/10 text-emerald-400">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-semibold text-zinc-100">Excluir meta</h2>
+                        <p class="mt-2 text-sm text-zinc-400">Confirme a remoção desta meta de orçamento. A operação não poderá ser desfeita.</p>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    ng-click="vm.fecharModalExclusao()"
+                    ng-disabled="vm.excluindoMetaId === vm.metaPendenteExclusao.metaId"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200"
+                    ng-class="{ 'cursor-not-allowed opacity-50': vm.excluindoMetaId === vm.metaPendenteExclusao.metaId }"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="rounded-2xl border border-[#10b981]/15 bg-black/25 p-5" ng-if="vm.metaPendenteExclusao">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">Meta selecionada</p>
+                <p class="mt-3 text-lg font-semibold text-zinc-100">{{ vm.metaPendenteExclusao.nomeCategoria }}</p>
+
+                <div class="mt-4 grid grid-cols-1 gap-3 text-sm text-zinc-400 sm:grid-cols-3">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.18em] text-zinc-500">Competência</p>
+                        <p class="mt-1 font-medium text-zinc-200">{{ vm.formatarMesAtual() }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.18em] text-zinc-500">Gasto Atual</p>
+                        <p class="mt-1 font-semibold text-zinc-200">{{ vm.metaPendenteExclusao.valorGasto | mascaraPrivacidade }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.18em] text-zinc-500">Limite</p>
+                        <p class="mt-1 font-semibold text-zinc-200">{{ vm.metaPendenteExclusao.valorLimite | mascaraPrivacidade }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-5 text-sm font-medium text-rose-400" ng-if="vm.mensagemExclusaoErro">
+                {{ vm.mensagemExclusaoErro }}
+            </p>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button
+                    type="button"
+                    ng-click="vm.fecharModalExclusao()"
+                    ng-disabled="vm.excluindoMetaId === vm.metaPendenteExclusao.metaId"
+                    class="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/5 hover:text-zinc-100"
+                    ng-class="{ 'cursor-not-allowed opacity-50': vm.excluindoMetaId === vm.metaPendenteExclusao.metaId }"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="button"
+                    ng-click="vm.confirmarExclusao()"
+                    ng-disabled="vm.excluindoMetaId === vm.metaPendenteExclusao.metaId"
+                    class="rounded-xl border border-rose-500/30 bg-rose-500/10 px-5 py-2 text-sm font-semibold text-rose-300 shadow-lg shadow-rose-500/10 transition hover:bg-rose-500/20 hover:text-rose-200"
+                    ng-class="{ 'cursor-not-allowed opacity-60': vm.excluindoMetaId === vm.metaPendenteExclusao.metaId }"
+                >
+                    <span ng-if="vm.excluindoMetaId !== vm.metaPendenteExclusao.metaId">Excluir agora</span>
+                    <span ng-if="vm.excluindoMetaId === vm.metaPendenteExclusao.metaId">Excluindo...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

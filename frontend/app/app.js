@@ -68,6 +68,12 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
             controller: 'DashboardController',
             controllerAs: 'vm'
         })
+        .state('app.metas', {
+            url: '/metas',
+            templateUrl: 'app/views/metas.html',
+            controller: 'MetasController',
+            controllerAs: 'vm'
+        })
         .state('app.perfil', {
             url: '/perfil',
             templateUrl: 'app/views/perfil.html',

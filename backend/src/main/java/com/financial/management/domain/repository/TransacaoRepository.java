@@ -78,4 +78,19 @@ public interface TransacaoRepository extends JpaRepository<Transacao, UUID> {
         @Param("dataInicio") LocalDate dataInicio,
         @Param("dataFim") LocalDate dataFim
     );
+
+    @Query("""
+        select coalesce(sum(t.valor), 0)
+        from Transacao t
+        where t.usuario.id = :usuarioId
+          and t.categoria.id = :categoriaId
+          and t.dataTransacao between :dataInicio and :dataFim
+          and t.categoria.tipo = 'DESPESA'
+        """)
+    BigDecimal somarDespesasPorUsuarioCategoriaEPeriodo(
+        @Param("usuarioId") UUID usuarioId,
+        @Param("categoriaId") UUID categoriaId,
+        @Param("dataInicio") LocalDate dataInicio,
+        @Param("dataFim") LocalDate dataFim
+    );
 }
