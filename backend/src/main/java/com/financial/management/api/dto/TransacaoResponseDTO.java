@@ -11,6 +11,7 @@ public record TransacaoResponseDTO(
     String descricao,
     String status,
     UUID contaId,
+    UUID categoriaId,
     String categoriaNome,
     String categoriaCor,
     String tipo

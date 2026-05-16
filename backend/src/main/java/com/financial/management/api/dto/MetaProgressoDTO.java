@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record MetaProgressoDTO(
     UUID metaId,
+    String nomeMeta,
     UUID categoriaId,
     String nomeCategoria,
     BigDecimal valorLimite,

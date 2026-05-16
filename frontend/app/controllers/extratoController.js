@@ -49,9 +49,12 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
     vm.mensagemErro = '';
     vm.mensagemModalErro = '';
     vm.modalAberto = false;
+    vm.modalEdicaoAberto = false;
     vm.modalExclusaoAberto = false;
+    vm.mensagemEdicaoErro = '';
     vm.mensagemExclusaoErro = '';
     vm.transacaoPendenteExclusao = null;
+    vm.transacaoEmEdicao = {};
     vm.excluindoTransacaoId = null;
 
     vm.obterCategoriasPorTipo = function(tipo) {
@@ -84,6 +87,14 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
         }
 
         aplicarLimiteRecorrenciaPadrao();
+    };
+
+    vm.aoAlterarTipoTransacaoEdicao = function() {
+        if (!vm.transacaoEmEdicao) {
+            return;
+        }
+
+        vm.transacaoEmEdicao.categoriaId = null;
     };
 
     vm.formatarMesAtual = function() {
@@ -150,6 +161,12 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
         vm.modalAberto = false;
         vm.mensagemModalErro = '';
         vm.novaTransacao = {};
+    };
+
+    vm.fecharModalEdicao = function() {
+        vm.modalEdicaoAberto = false;
+        vm.mensagemEdicaoErro = '';
+        vm.transacaoEmEdicao = {};
     };
 
     vm.fecharModalExclusao = function(forcarFechamento) {
@@ -280,7 +297,85 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
     };
 
     vm.visualizarTransacao = angular.noop;
-    vm.editarTransacao = angular.noop;
+    vm.editarTransacao = function(transacao) {
+        if (!transacao || !transacao.id) {
+            return;
+        }
+
+        vm.mensagemErro = '';
+        vm.mensagemEdicaoErro = '';
+
+        if (!vm.contas.length) {
+            vm.mensagemErro = 'Nenhuma conta disponível para edição.';
+            return;
+        }
+
+        if (!vm.listaCategoriasReais.length) {
+            vm.mensagemErro = 'Nenhuma categoria disponível para edição.';
+            return;
+        }
+
+        vm.transacaoEmEdicao = {
+            id: transacao.id,
+            descricao: transacao.descricao || '',
+            valor: Number(transacao.valor || 0),
+            dataTransacao: transacao.dataTransacao,
+            contaId: transacao.contaId,
+            categoriaId: transacao.categoriaId || encontrarCategoriaIdPorNomeETipo(transacao.categoriaNome, transacao.tipo),
+            tipo: transacao.tipo
+        };
+        vm.modalEdicaoAberto = true;
+    };
+
+    vm.salvarEdicaoTransacao = function() {
+        var dataTransacao = vm.transacaoEmEdicao.dataTransacao;
+        var payload;
+        var mensagemErro = 'Não foi possível atualizar a transação.';
+
+        vm.mensagemEdicaoErro = '';
+
+        if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
+            vm.mensagemEdicaoErro = 'Usuário não identificado na sessão atual.';
+            return;
+        }
+
+        if (!vm.transacaoEmEdicao || !vm.transacaoEmEdicao.id) {
+            vm.mensagemEdicaoErro = 'Transação inválida para edição.';
+            return;
+        }
+
+        if (dataTransacao instanceof Date) {
+            dataTransacao = dataTransacao.toISOString().slice(0, 10);
+        }
+
+        payload = {
+            usuarioId: vm.usuarioLogado.id,
+            contaId: vm.transacaoEmEdicao.contaId,
+            categoriaId: vm.transacaoEmEdicao.categoriaId,
+            valor: parseFloat(vm.transacaoEmEdicao.valor),
+            dataTransacao: dataTransacao,
+            descricao: vm.transacaoEmEdicao.descricao,
+            status: vm.transacaoEmEdicao.tipo,
+            recorrente: false,
+            frequencia: null,
+            mesFimRecorrencia: null,
+            anoFimRecorrencia: null
+        };
+
+        if (!payload.contaId || !payload.categoriaId) {
+            vm.mensagemEdicaoErro = 'Selecione uma conta e uma categoria válidas.';
+            return;
+        }
+
+        TransacaoService.atualizar(vm.transacaoEmEdicao.id, payload)
+            .then(function() {
+                vm.fecharModalEdicao();
+                vm.carregarTransacoes();
+            })
+            .catch(function(error) {
+                vm.mensagemEdicaoErro = extrairMensagemErro(error, mensagemErro);
+            });
+    };
 
     vm.confirmarExclusao = function() {
         var mensagemErro = 'Não foi possível excluir a transação.';
@@ -304,13 +399,7 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
             })
             .catch(function(error) {
                 if (error && error.data) {
-                    if (typeof error.data === 'string') {
-                        mensagemErro = error.data;
-                    } else if (error.data.status) {
-                        mensagemErro = error.data.status;
-                    } else {
-                        mensagemErro = Object.values(error.data).join(' ');
-                    }
+                    mensagemErro = extrairMensagemErro(error, mensagemErro);
                 }
 
                 vm.mensagemErro = mensagemErro;
@@ -346,6 +435,11 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
         $scope.$applyAsync(function() {
             if (vm.modalExclusaoAberto) {
                 vm.fecharModalExclusao();
+                return;
+            }
+
+            if (vm.modalEdicaoAberto) {
+                vm.fecharModalEdicao();
                 return;
             }
 
@@ -396,5 +490,29 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
         }
 
         return anos;
+    }
+
+    function encontrarCategoriaIdPorNomeETipo(nomeCategoria, tipo) {
+        var categoriaEncontrada = vm.listaCategoriasReais.find(function(categoria) {
+            return categoria && categoria.nome === nomeCategoria && categoria.tipo === tipo;
+        });
+
+        return categoriaEncontrada ? categoriaEncontrada.id : null;
+    }
+
+    function extrairMensagemErro(error, fallback) {
+        if (error && error.data) {
+            if (typeof error.data === 'string') {
+                return error.data;
+            }
+
+            if (error.data.status) {
+                return error.data.status;
+            }
+
+            return Object.values(error.data).join(' ');
+        }
+
+        return fallback;
     }
 });

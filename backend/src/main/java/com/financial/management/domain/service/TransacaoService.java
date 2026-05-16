@@ -72,6 +72,36 @@ public class TransacaoService {
         transacaoRepository.delete(transacao);
     }
 
+    @Transactional
+    public Transacao atualizarTransacao(UUID id, Transacao dadosAtualizados) {
+        Transacao transacaoExistente = transacaoRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Transação não encontrada para o id: " + id));
+
+        validarTransacao(dadosAtualizados);
+
+        Conta contaAnterior = buscarConta(transacaoExistente.getConta().getId());
+        Conta contaAtualizada = buscarConta(dadosAtualizados.getConta().getId());
+
+        estornarSaldo(contaAnterior, transacaoExistente);
+
+        transacaoExistente.setConta(contaAtualizada);
+        transacaoExistente.setCategoria(dadosAtualizados.getCategoria());
+        transacaoExistente.setUsuario(dadosAtualizados.getUsuario());
+        transacaoExistente.setValor(dadosAtualizados.getValor());
+        transacaoExistente.setDataTransacao(dadosAtualizados.getDataTransacao());
+        transacaoExistente.setDescricao(dadosAtualizados.getDescricao());
+        transacaoExistente.setStatus(dadosAtualizados.getStatus());
+
+        aplicarSaldo(contaAtualizada, transacaoExistente);
+
+        if (!contaAnterior.getId().equals(contaAtualizada.getId())) {
+            contaRepository.save(contaAnterior);
+        }
+
+        contaRepository.save(contaAtualizada);
+        return transacaoRepository.save(transacaoExistente);
+    }
+
     @Transactional(readOnly = true)
     public List<Transacao> buscarPorUsuario(UUID id, Integer mes, Integer ano) {
         YearMonth competencia = criarCompetencia(mes, ano);

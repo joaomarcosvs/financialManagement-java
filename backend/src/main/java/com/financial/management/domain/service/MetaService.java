@@ -47,6 +47,7 @@ public class MetaService {
         Meta meta = Meta.builder()
             .usuario(usuario)
             .categoria(categoria)
+            .nome(normalizarNome(request.nome()))
             .valorLimite(normalizarValorLimite(request.valorLimite()))
             .build();
 
@@ -66,6 +67,7 @@ public class MetaService {
             throw new IllegalArgumentException("Já existe uma meta cadastrada para esta categoria.");
         }
 
+        meta.setNome(normalizarNome(request.nome()));
         meta.setCategoria(categoria);
         meta.setValorLimite(normalizarValorLimite(request.valorLimite()));
 
@@ -105,6 +107,7 @@ public class MetaService {
 
         return new MetaProgressoDTO(
             meta.getId(),
+            meta.getNome(),
             meta.getCategoria().getId(),
             meta.getCategoria().getNome(),
             valorLimite,
@@ -133,6 +136,14 @@ public class MetaService {
         }
 
         return valorNormalizado.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private String normalizarNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new IllegalArgumentException("O nome da meta é obrigatório.");
+        }
+
+        return nome.trim();
     }
 
     private Double calcularPercentual(BigDecimal valorGasto, BigDecimal valorLimite) {

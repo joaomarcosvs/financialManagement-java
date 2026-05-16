@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface MetaRepository extends JpaRepository<Meta, UUID> {
 
-    @Query("select m from Meta m join fetch m.categoria c where m.usuario.id = :usuarioId order by c.nome asc")
+    @Query("select m from Meta m join fetch m.categoria c where m.usuario.id = :usuarioId order by m.nome asc, c.nome asc")
     List<Meta> findByUsuarioId(@Param("usuarioId") UUID usuarioId);
 
     @Query("select count(m) > 0 from Meta m where m.usuario.id = :usuarioId and m.categoria.id = :categoriaId")

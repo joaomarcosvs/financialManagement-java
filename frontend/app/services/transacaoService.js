@@ -11,6 +11,9 @@ app.factory('TransacaoService', function($http) {
         criar: function(transacao) {
             return $http.post('http://localhost:8080/api/v1/transacoes', transacao);
         },
+        atualizar: function(transacaoId, transacao) {
+            return $http.put('http://localhost:8080/api/v1/transacoes/' + transacaoId, transacao);
+        },
         deletar: function(transacaoId) {
             return $http.delete('http://localhost:8080/api/v1/transacoes/' + transacaoId);
         }

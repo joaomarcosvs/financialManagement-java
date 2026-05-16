@@ -376,4 +376,126 @@
             </form>
         </div>
     </div>
+
+    <div ng-if="vm.modalEdicaoAberto" ng-click="vm.fecharModalEdicao()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm">
+        <div ng-click="$event.stopPropagation()" class="w-full max-w-3xl rounded-2xl border border-[#10b981]/30 bg-[#0a1410] p-8 shadow-2xl shadow-emerald-500/20">
+            <div class="mb-6 flex items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-semibold text-zinc-100">Editar Transação</h2>
+                    <p class="mt-2 text-sm text-zinc-400">Atualize os dados desta movimentação específica sem alterar a lógica de recorrência original.</p>
+                </div>
+
+                <button
+                    type="button"
+                    ng-click="vm.fecharModalEdicao()"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form ng-submit="vm.salvarEdicaoTransacao()" class="space-y-5">
+                <div>
+                    <label for="editarDescricao" class="mb-2 block text-sm font-medium text-zinc-300">Descrição</label>
+                    <input
+                        id="editarDescricao"
+                        type="text"
+                        ng-model="vm.transacaoEmEdicao.descricao"
+                        class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                        placeholder="Ex: Supermercado, salário, aluguel"
+                        required
+                    >
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="editarValor" class="mb-2 block text-sm font-medium text-zinc-300">Valor</label>
+                        <input
+                            id="editarValor"
+                            type="text"
+                            inputmode="decimal"
+                            ng-model="vm.transacaoEmEdicao.valor"
+                            mask-moeda
+                            class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                            placeholder="0,00"
+                            required
+                        >
+                    </div>
+
+                    <div>
+                        <label for="editarDataTransacao" class="mb-2 block text-sm font-medium text-zinc-300">Data</label>
+                        <input
+                            id="editarDataTransacao"
+                            type="date"
+                            ng-model="vm.transacaoEmEdicao.dataTransacao"
+                            class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div>
+                        <label for="editarConta" class="mb-2 block text-sm font-medium text-zinc-300">Conta</label>
+                        <financial-select
+                            input-id="editarConta"
+                            items="vm.contas"
+                            ng-model="vm.transacaoEmEdicao.contaId"
+                            option-label="item.nome"
+                            option-value="item.id"
+                            searchable="true"
+                            placeholder="Selecione uma conta"
+                            empty-message="Nenhuma conta disponível."
+                        ></financial-select>
+                    </div>
+
+                    <div>
+                        <label for="editarTipo" class="mb-2 block text-sm font-medium text-zinc-300">Tipo</label>
+                        <financial-select
+                            input-id="editarTipo"
+                            items="vm.tiposTransacao"
+                            ng-model="vm.transacaoEmEdicao.tipo"
+                            on-change="vm.aoAlterarTipoTransacaoEdicao()"
+                            placeholder="Selecione um tipo"
+                            empty-message="Nenhum tipo disponível."
+                        ></financial-select>
+                    </div>
+
+                    <div>
+                        <label for="editarCategoria" class="mb-2 block text-sm font-medium text-zinc-300">Categoria</label>
+                        <financial-select
+                            input-id="editarCategoria"
+                            items="vm.listaCategoriasReais | filter:{ tipo: vm.transacaoEmEdicao.tipo }"
+                            ng-model="vm.transacaoEmEdicao.categoriaId"
+                            option-label="item.nome"
+                            option-value="item.id"
+                            searchable="true"
+                            placeholder="Selecione uma categoria"
+                            empty-message="Nenhuma categoria disponível."
+                        ></financial-select>
+                    </div>
+                </div>
+
+                <p class="text-sm font-medium text-rose-400" ng-if="vm.mensagemEdicaoErro">
+                    {{ vm.mensagemEdicaoErro }}
+                </p>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        ng-click="vm.fecharModalEdicao()"
+                        class="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/5 hover:text-zinc-100"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        class="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
+                    >
+                        Salvar alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

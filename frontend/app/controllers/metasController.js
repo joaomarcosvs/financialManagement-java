@@ -32,6 +32,7 @@ app.controller('MetasController', function($window, AuthService, CategoriaServic
     vm.mensagemSucesso = '';
     vm.mensagemModalErro = '';
     vm.formMeta = {
+        nome: '',
         categoriaId: null,
         valorLimite: null
     };
@@ -92,6 +93,7 @@ app.controller('MetasController', function($window, AuthService, CategoriaServic
                 }
 
                 vm.formMeta = {
+                    nome: meta && (meta.nomeMeta || meta.nomeCategoria) ? (meta.nomeMeta || meta.nomeCategoria) : '',
                     categoriaId: meta && meta.categoriaId ? meta.categoriaId : vm.categoriasDespesa[0].id,
                     valorLimite: meta && meta.valorLimite ? Number(meta.valorLimite) : null
                 };
@@ -111,6 +113,7 @@ app.controller('MetasController', function($window, AuthService, CategoriaServic
         vm.mensagemModalErro = '';
         vm.metaEmEdicaoId = null;
         vm.formMeta = {
+            nome: '',
             categoriaId: null,
             valorLimite: null
         };
@@ -138,6 +141,11 @@ app.controller('MetasController', function($window, AuthService, CategoriaServic
             return;
         }
 
+        if (!vm.formMeta.nome || !vm.formMeta.nome.trim()) {
+            vm.mensagemModalErro = 'Informe um nome para a meta.';
+            return;
+        }
+
         if (!Number(vm.formMeta.valorLimite || 0)) {
             vm.mensagemModalErro = 'Informe um valor limite válido.';
             return;
@@ -145,6 +153,7 @@ app.controller('MetasController', function($window, AuthService, CategoriaServic
 
         vm.salvandoMeta = true;
         payload = {
+            nome: vm.formMeta.nome.trim(),
             categoriaId: vm.formMeta.categoriaId,
             valorLimite: Number(vm.formMeta.valorLimite)
         };

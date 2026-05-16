@@ -48,6 +48,9 @@ public class Meta {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
+    @Column(name = "nome", nullable = false, length = 150)
+    private String nome;
+
     @Column(name = "valor_limite", nullable = false, precision = 15, scale = 2)
     private BigDecimal valorLimite;
 
