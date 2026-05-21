@@ -46,6 +46,7 @@ public class ContaService {
                 .id(conta.getId())
                 .nome(conta.getNome())
                 .tipo(conta.getTipo())
+                .modalidade(conta.getModalidade())
                 .icone(conta.getIcone())
                 .saldoAtual(saldoMesAtualPorConta.getOrDefault(conta.getId(), BigDecimal.ZERO))
                 .criadoEm(conta.getCriadoEm())
@@ -59,9 +60,13 @@ public class ContaService {
         Usuario usuario = usuarioRepository.findById(request.usuarioId())
             .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o id: " + request.usuarioId()));
 
+        String tipo = normalizarTextoObrigatorio(request.tipo()).toUpperCase(Locale.ROOT);
+        String modalidade = normalizarModalidade(request.modalidade(), tipo);
+
         Conta conta = Conta.builder()
             .nome(normalizarTextoObrigatorio(request.nome()))
-            .tipo(normalizarTextoObrigatorio(request.tipo()).toUpperCase(Locale.ROOT))
+            .tipo(tipo)
+            .modalidade(modalidade)
             .icone(normalizarIcone(request.icone()))
             .saldoAtual(BigDecimal.ZERO)
             .build();
@@ -98,6 +103,24 @@ public class ContaService {
         }
 
         return valor.trim();
+    }
+
+    private String normalizarModalidade(String modalidade, String tipo) {
+        if ("POUPANCA".equals(tipo)) {
+            return null;
+        }
+
+        if (modalidade == null || modalidade.isBlank()) {
+            throw new IllegalArgumentException("A modalidade é obrigatória para contas do tipo CORRENTE.");
+        }
+
+        String modalidadeNormalizada = modalidade.trim().toUpperCase(Locale.ROOT);
+
+        if (!modalidadeNormalizada.equals("DEBITO") && !modalidadeNormalizada.equals("CREDITO") && !modalidadeNormalizada.equals("DEBITO_CREDITO")) {
+            throw new IllegalArgumentException("Modalidade inválida. Use DEBITO, CREDITO ou DEBITO_CREDITO.");
+        }
+
+        return modalidadeNormalizada;
     }
 
     private String normalizarIcone(String icone) {

@@ -20,6 +20,14 @@ app.controller('PerfilController', function($state, $window, AuthService, Usuari
     vm.mensagemSenhaSucesso = '';
     vm.mensagemZonaPerigoErro = '';
 
+    vm.obterIniciais = function() {
+        var nome = (vm.usuario && vm.usuario.nome && vm.usuario.nome.trim()) || 'U';
+        var partes = nome.split(/\s+/).filter(Boolean);
+        if (!partes.length) { return 'U'; }
+        if (partes.length === 1) { return partes[0].charAt(0).toUpperCase(); }
+        return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
+    };
+
     vm.carregarPerfil = function() {
         if (!AuthService.getUsuarioId()) {
             $state.go('login');

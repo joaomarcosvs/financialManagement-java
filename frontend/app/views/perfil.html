@@ -4,6 +4,42 @@
         <p class="mt-2 text-sm text-zinc-500">Gerencie suas informações pessoais e preferências de segurança.</p>
     </div>
 
+    <section class="relative overflow-hidden rounded-2xl border border-[#10b981]/15 bg-[#080d0b] p-6 shadow-lg shadow-black/20 md:p-8">
+        <div class="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-emerald-500/5 blur-2xl"></div>
+        <div class="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-sky-500/5 blur-2xl"></div>
+
+        <div class="relative flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+            <div class="relative shrink-0">
+                <div class="flex h-24 w-24 items-center justify-center rounded-3xl bg-emerald-500/15 text-3xl font-bold tracking-widest text-emerald-300 shadow-inner ring-2 ring-emerald-500/20">
+                    {{ vm.obterIniciais() }}
+                </div>
+                <span class="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-[#080d0b]">
+                    <i class="fa-solid fa-check text-[8px] text-white"></i>
+                </span>
+            </div>
+
+            <div class="flex-1 text-center sm:text-left">
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500/70">Conta ativa</p>
+                <h2 class="mt-2 text-2xl font-bold text-zinc-100">{{ vm.usuario.nome || 'Carregando...' }}</h2>
+                <p class="mt-1 text-sm text-zinc-500">{{ vm.usuario.email }}</p>
+                <div class="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+                    <span ng-if="vm.usuario.telefone" class="inline-flex items-center gap-1.5 rounded-full border border-[#10b981]/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                        <i class="fa-solid fa-mobile-screen-button text-[10px]"></i>
+                        {{ vm.usuario.telefone }}
+                    </span>
+                    <span ng-if="!vm.usuario.telefone" class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-500">
+                        <i class="fa-solid fa-mobile-screen-button text-[10px]"></i>
+                        Sem telefone cadastrado
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-300">
+                        <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                        Conta protegida
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="rounded-2xl border border-[#10b981]/20 bg-[#080d0b] p-6 shadow-lg shadow-black/20">
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>

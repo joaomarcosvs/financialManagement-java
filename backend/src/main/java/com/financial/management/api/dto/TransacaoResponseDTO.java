@@ -2,6 +2,7 @@ package com.financial.management.api.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record TransacaoResponseDTO(
@@ -14,6 +15,8 @@ public record TransacaoResponseDTO(
     UUID categoriaId,
     String categoriaNome,
     String categoriaCor,
-    String tipo
+    String tipo,
+    String origem,
+    List<String> tags
 ) {
 }

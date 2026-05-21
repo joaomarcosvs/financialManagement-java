@@ -66,6 +66,10 @@ public class Transacao {
     private boolean recorrente = false;
 
     @Builder.Default
+    @Column(name = "origem", nullable = false, length = 20)
+    private String origem = "MANUAL";
+
+    @Builder.Default
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = true;
 

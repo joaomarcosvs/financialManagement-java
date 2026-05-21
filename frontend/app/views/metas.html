@@ -93,6 +93,51 @@
         <p class="mt-2 text-sm text-zinc-500">Crie metas por categoria para acompanhar seu orçamento mensal e agir antes de ultrapassar o limite.</p>
     </div>
 
+    <section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl md:p-8" ng-if="vm.historicoMetas.length || vm.carregandoHistorico">
+        <div class="mb-6 flex items-center justify-between gap-4">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500/70">Retrospectiva</p>
+                <h2 class="mt-2 text-2xl font-semibold text-zinc-100">Histórico dos últimos 6 meses</h2>
+            </div>
+            <span ng-if="vm.carregandoHistorico" class="rounded-full border border-[#10b981]/15 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">
+                Carregando
+            </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <div
+                ng-repeat="h in vm.historicoMetas"
+                class="flex flex-col gap-3 rounded-2xl border p-4 transition"
+                ng-class="{
+                    'border-rose-500/25 bg-rose-500/5': h.estouradas > 0,
+                    'border-amber-500/25 bg-amber-500/5': h.estouradas === 0 && h.emAlerta > 0,
+                    'border-[#10b981]/10 bg-black/20': h.estouradas === 0 && h.emAlerta === 0
+                }"
+            >
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">{{ h.label }}</p>
+                <p class="text-xl font-bold text-zinc-100">{{ h.totalMetas }}</p>
+                <p class="text-[11px] text-zinc-500">
+                    {{ h.totalMetas === 1 ? 'meta' : 'metas' }}
+                </p>
+                <div class="mt-auto flex flex-col gap-1">
+                    <span ng-if="h.estouradas > 0" class="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-400">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ h.estouradas }} estourada{{ h.estouradas > 1 ? 's' : '' }}
+                    </span>
+                    <span ng-if="h.emAlerta > 0" class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-400">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        {{ h.emAlerta }} em alerta
+                    </span>
+                    <span ng-if="h.estouradas === 0 && h.emAlerta === 0 && h.totalMetas > 0" class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Tudo ok
+                    </span>
+                    <span ng-if="h.totalMetas === 0" class="text-[10px] text-zinc-600">Sem metas</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <div ng-if="vm.modalMetaAberto" ng-click="vm.fecharModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
         <div ng-click="$event.stopPropagation()" class="w-full max-w-lg rounded-2xl border border-[#10b981]/25 bg-[#0a1410] p-8 shadow-2xl shadow-emerald-500/20">
             <div class="mb-6 flex items-start justify-between gap-4">

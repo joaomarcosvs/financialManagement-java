@@ -106,7 +106,7 @@ public class TransacaoService {
     public List<Transacao> buscarPorUsuario(UUID id, Integer mes, Integer ano) {
         YearMonth competencia = criarCompetencia(mes, ano);
 
-        return transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(
+        return transacaoRepository.findByUsuarioIdAndDataTransacaoBetweenComTags(
             id,
             competencia.atDay(1),
             competencia.atEndOfMonth()

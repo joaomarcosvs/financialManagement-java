@@ -1,4 +1,4 @@
-app.controller('MetasController', function($window, AuthService, CategoriaService, MetaService) {
+app.controller('MetasController', function($q, $window, AuthService, CategoriaService, MetaService) {
     var vm = this;
     var dataAtual = new Date();
     var nomesMeses = [
@@ -36,6 +36,8 @@ app.controller('MetasController', function($window, AuthService, CategoriaServic
         categoriaId: null,
         valorLimite: null
     };
+    vm.historicoMetas = [];
+    vm.carregandoHistorico = false;
 
     vm.formatarMesAtual = function() {
         return nomesMeses[vm.mesAtual - 1] + ' ' + vm.anoAtual;
@@ -234,7 +236,51 @@ app.controller('MetasController', function($window, AuthService, CategoriaServic
         return Math.min(percentual, 100) + '%';
     };
 
+    vm.carregarHistoricoMetas = function() {
+        var meses = [];
+        var mesAux = dataAtual.getMonth() + 1;
+        var anoAux = dataAtual.getFullYear();
+        var i;
+
+        for (i = 0; i < 6; i++) {
+            mesAux -= 1;
+            if (mesAux === 0) {
+                mesAux = 12;
+                anoAux -= 1;
+            }
+            meses.push({ mes: mesAux, ano: anoAux });
+        }
+
+        vm.carregandoHistorico = true;
+
+        $q.all(meses.map(function(comp) {
+            return MetaService.obterProgresso(comp.mes, comp.ano)
+                .then(function(response) {
+                    var lista = response.data || [];
+                    return {
+                        label: nomesMeses[comp.mes - 1] + ' ' + comp.ano,
+                        totalMetas: lista.length,
+                        estouradas: lista.filter(function(m) { return Number(m.percentualGasto || 0) >= 100; }).length,
+                        emAlerta: lista.filter(function(m) {
+                            var p = Number(m.percentualGasto || 0);
+                            return p >= 80 && p < 100;
+                        }).length
+                    };
+                })
+                .catch(function() {
+                    return { label: nomesMeses[comp.mes - 1] + ' ' + comp.ano, totalMetas: 0, estouradas: 0, emAlerta: 0 };
+                });
+        }))
+        .then(function(resultados) {
+            vm.historicoMetas = resultados;
+        })
+        .finally(function() {
+            vm.carregandoHistorico = false;
+        });
+    };
+
     vm.carregarMetas();
+    vm.carregarHistoricoMetas();
 
     function extrairMensagemErro(error, fallback) {
         if (error && error.data) {

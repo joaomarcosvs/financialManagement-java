@@ -45,6 +45,9 @@ public class Conta {
     @Column(name = "tipo", nullable = false, length = 30)
     private String tipo;
 
+    @Column(name = "modalidade", length = 20)
+    private String modalidade;
+
     @Column(name = "icone", length = 50)
     private String icone;
 

@@ -1,4 +1,4 @@
-app.controller('DashboardController', function(AuthService, DashboardService, $rootScope, $timeout) {
+app.controller('DashboardController', function(AuthService, DashboardService, TransacaoService, $rootScope, $timeout) {
     var vm = this;
     var gastosChart;
     var lineChart;
@@ -28,6 +28,14 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
     vm.semDadosGastos = false;
     vm.semDadosTendencias = false;
     vm.saldoAtual = 0;
+    vm.taxaPoupanca = 0;
+    vm.ringOffset = 125.66;
+    vm.corTaxaPoupanca = 'text-zinc-400';
+    vm.corRing = '#71717a';
+    vm.gastosOrdenados = [];
+    vm.maiorGasto = 1;
+    vm.previsaoFimMes = null;
+    vm.previsaoPositiva = true;
     vm.dados = {
         saldoAtualTotal: 0,
         totalReceitas: 0,
@@ -55,6 +63,10 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
     };
     vm.mensagemErro = '';
     vm.mensagemErroTendencias = '';
+
+    vm.percentualCategoria = function(valor) {
+        return vm.maiorGasto > 0 ? Math.min(100, Math.round((Number(valor || 0) / vm.maiorGasto) * 100)) : 0;
+    };
 
     vm.formatarMesAtual = function() {
         return nomesMeses[vm.mesAtual - 1] + ' ' + vm.anoAtual;
@@ -136,14 +148,68 @@ app.controller('DashboardController', function(AuthService, DashboardService, $r
                 vm.saldoAtual = Number((vm.dados && vm.dados.saldoAtualTotal) || 0);
                 vm.semDadosGastos = !possuiDadosDoughnut(gastos);
 
+                var receitas = Number(vm.dados.totalReceitas || 0);
+                var despesas = Number(vm.dados.totalDespesas || 0);
+                vm.taxaPoupanca = receitas > 0 ? Math.round(Math.max(0, (receitas - despesas) / receitas * 100)) : 0;
+                vm.ringOffset = 125.66 * (1 - Math.min(100, vm.taxaPoupanca) / 100);
+                if (vm.taxaPoupanca >= 30) {
+                    vm.corTaxaPoupanca = 'text-emerald-400';
+                    vm.corRing = '#10b981';
+                } else if (vm.taxaPoupanca >= 10) {
+                    vm.corTaxaPoupanca = 'text-amber-400';
+                    vm.corRing = '#f59e0b';
+                } else {
+                    vm.corTaxaPoupanca = 'text-rose-400';
+                    vm.corRing = '#f43f5e';
+                }
+                vm.gastosOrdenados = gastos.slice().sort(function(a, b) {
+                    return Number(b.valor || 0) - Number(a.valor || 0);
+                });
+                vm.maiorGasto = vm.gastosOrdenados.length > 0 ? Number(vm.gastosOrdenados[0].valor || 0) : 1;
+
                 $timeout(function() {
                     renderizarGrafico(gastos);
                 });
+
+                vm.carregarPrevisao();
             })
             .catch(function() {
                 vm.mensagemErro = 'Não foi possível carregar o resumo do dashboard.';
                 vm.semDadosGastos = true;
             });
+    };
+
+    vm.carregarPrevisao = function() {
+        var hoje = new Date();
+        var mesHoje = hoje.getMonth() + 1;
+        var anoHoje = hoje.getFullYear();
+        var hojeStr = hoje.toISOString().slice(0, 10);
+
+        if (vm.mesAtual !== mesHoje || vm.anoAtual !== anoHoje) {
+            vm.previsaoFimMes = null;
+            return;
+        }
+
+        if (!vm.usuarioLogado || !vm.usuarioLogado.id) {
+            return;
+        }
+
+        TransacaoService.listarPorUsuario(vm.usuarioLogado.id, vm.mesAtual, vm.anoAtual)
+            .then(function(response) {
+                var transacoes = response.data || [];
+                var futuras = transacoes.filter(function(t) {
+                    return t.dataTransacao > hojeStr;
+                });
+                var receitasFuturas = futuras
+                    .filter(function(t) { return t.tipo === 'RECEITA'; })
+                    .reduce(function(sum, t) { return sum + Number(t.valor || 0); }, 0);
+                var despesasFuturas = futuras
+                    .filter(function(t) { return t.tipo === 'DESPESA'; })
+                    .reduce(function(sum, t) { return sum + Number(t.valor || 0); }, 0);
+                vm.previsaoFimMes = vm.saldoAtual + receitasFuturas - despesasFuturas;
+                vm.previsaoPositiva = vm.previsaoFimMes >= 0;
+            })
+            .catch(angular.noop);
     };
 
     vm.carregarTendencias = function() {

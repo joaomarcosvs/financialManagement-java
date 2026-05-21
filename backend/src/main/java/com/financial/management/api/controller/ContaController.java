@@ -53,6 +53,7 @@ public class ContaController {
             conta.getId(),
             conta.getNome(),
             conta.getTipo(),
+            conta.getModalidade(),
             conta.getIcone(),
             conta.getSaldoAtual(),
             conta.getCriadoEm(),

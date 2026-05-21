@@ -23,6 +23,19 @@ public interface TransacaoRepository extends JpaRepository<Transacao, UUID> {
 
     List<Transacao> findByUsuarioIdAndDataTransacaoBetween(UUID usuarioId, LocalDate dataInicial, LocalDate dataFinal);
 
+    @Query("""
+        select distinct t from Transacao t
+        left join fetch t.tags
+        where t.usuario.id = :usuarioId
+          and t.dataTransacao between :dataInicial and :dataFinal
+        order by t.dataTransacao desc
+        """)
+    List<Transacao> findByUsuarioIdAndDataTransacaoBetweenComTags(
+        @Param("usuarioId") UUID usuarioId,
+        @Param("dataInicial") LocalDate dataInicial,
+        @Param("dataFinal") LocalDate dataFinal
+    );
+
     List<Transacao> findAllByConta_Id(UUID contaId);
 
     boolean existsByConta_Id(UUID contaId);

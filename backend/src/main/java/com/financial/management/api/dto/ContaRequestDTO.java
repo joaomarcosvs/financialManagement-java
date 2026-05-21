@@ -9,6 +9,7 @@ public record ContaRequestDTO(
     @NotNull UUID usuarioId,
     @NotBlank @Size(max = 120) String nome,
     @NotBlank @Size(max = 30) String tipo,
+    @Size(max = 20) String modalidade,
     @Size(max = 50) String icone
 ) {
 }

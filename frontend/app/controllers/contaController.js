@@ -20,7 +20,13 @@ app.controller('ContaController', function($http, AuthService, ContaService) {
     vm.carregandoBancos = false;
     vm.excluindoContaId = null;
     vm.contaPendenteExclusao = null;
-    vm.tiposConta = ['DEBITO', 'CREDITO', 'POUPANCA'];
+    vm.tiposConta = ['CORRENTE', 'POUPANCA'];
+    vm.modalidades = [
+        { valor: 'DEBITO',        nome: 'Débito' },
+        { valor: 'CREDITO',       nome: 'Crédito' },
+        { valor: 'DEBITO_CREDITO', nome: 'Débito + Crédito' }
+    ];
+    vm.labelsModalidade = { DEBITO: 'Débito', CREDITO: 'Crédito', DEBITO_CREDITO: 'Débito + Crédito' };
     vm.formatarBanco = function(banco) {
         return banco.code + ' - ' + banco.name;
     };
@@ -102,7 +108,8 @@ app.controller('ContaController', function($http, AuthService, ContaService) {
         }
 
         vm.novaConta = {
-            tipo: vm.tiposConta[0],
+            tipo: 'CORRENTE',
+            modalidade: 'DEBITO',
             codigoBanco: vm.bancosBrasil.length ? vm.bancosBrasil[0].code : '',
             icone: 'generic'
         };
@@ -183,6 +190,7 @@ app.controller('ContaController', function($http, AuthService, ContaService) {
             usuarioId: vm.usuarioLogado.id,
             nome: vm.novaConta.nome,
             tipo: vm.novaConta.tipo,
+            modalidade: vm.novaConta.tipo === 'CORRENTE' ? vm.novaConta.modalidade : null,
             icone: vm.novaConta.icone
         };
 
@@ -255,6 +263,10 @@ app.controller('ContaController', function($http, AuthService, ContaService) {
 
         if (!vm.novaConta.tipo) {
             return 'Selecione o tipo da conta.';
+        }
+
+        if (vm.novaConta.tipo === 'CORRENTE' && !vm.novaConta.modalidade) {
+            return 'Selecione a modalidade da conta corrente.';
         }
 
         if (!vm.novaConta.codigoBanco) {

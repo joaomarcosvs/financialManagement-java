@@ -45,7 +45,9 @@
                     </div>
 
                     <div class="min-w-0">
-                        <p class="text-xs uppercase tracking-[0.24em] text-emerald-400">{{ conta.tipo }}</p>
+                        <p class="text-xs uppercase tracking-[0.24em] text-emerald-400">
+                            {{ conta.tipo }}<span ng-if="conta.modalidade"> · {{ vm.labelsModalidade[conta.modalidade] }}</span>
+                        </p>
                         <h2 class="mt-2 truncate text-xl font-semibold text-zinc-100">{{ conta.nome }}</h2>
                     </div>
                 </div>
@@ -113,7 +115,7 @@
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                        <label for="tipoConta" class="mb-2 block text-sm font-medium text-zinc-300">Tipo</label>
+                        <label for="tipoConta" class="mb-2 block text-sm font-medium text-zinc-300">Tipo de conta</label>
                         <financial-select
                             input-id="tipoConta"
                             items="vm.tiposConta"
@@ -124,6 +126,29 @@
                         ></financial-select>
                     </div>
 
+                    <div ng-if="vm.novaConta.tipo === 'CORRENTE'">
+                        <label for="modalidadeConta" class="mb-2 block text-sm font-medium text-zinc-300">Modalidade</label>
+                        <financial-select
+                            input-id="modalidadeConta"
+                            items="vm.modalidades"
+                            ng-model="vm.novaConta.modalidade"
+                            option-label="item.nome"
+                            option-value="item.valor"
+                            placeholder="Selecione a modalidade"
+                            empty-message="Nenhuma modalidade disponível."
+                            disabled="vm.salvandoConta"
+                        ></financial-select>
+                    </div>
+                    <div ng-if="vm.novaConta.tipo !== 'CORRENTE'">
+                        <div class="flex h-full items-end pb-0.5">
+                            <div class="w-full rounded-xl border border-[#10b981]/10 bg-black/20 px-4 py-3 text-sm text-zinc-500">
+                                <i class="fa-solid fa-piggy-bank mr-2 text-emerald-400/60"></i>Poupança — sem modalidade
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
                     <div>
                         <label for="bancoConta" class="mb-2 block text-sm font-medium text-zinc-300">Banco</label>
                         <financial-select
@@ -163,7 +188,12 @@
 
                         <div>
                             <p class="text-sm text-zinc-300">{{ vm.novaConta.nome || 'Sua nova conta' }}</p>
-                            <p class="mt-1 text-xs uppercase tracking-[0.18em] text-zinc-500">{{ vm.novaConta.tipo || 'TIPO' }}</p>
+                            <p class="mt-1 text-xs uppercase tracking-[0.18em] text-zinc-500">
+                                {{ vm.novaConta.tipo || 'TIPO' }}
+                                <span ng-if="vm.novaConta.tipo === 'CORRENTE' && vm.novaConta.modalidade">
+                                    · {{ vm.labelsModalidade[vm.novaConta.modalidade] }}
+                                </span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -239,7 +269,9 @@
 
                     <div>
                         <p class="text-lg font-semibold text-zinc-100">{{ vm.contaPendenteExclusao.nome }}</p>
-                        <p class="mt-1 text-xs uppercase tracking-[0.18em] text-zinc-500">{{ vm.contaPendenteExclusao.tipo }}</p>
+                        <p class="mt-1 text-xs uppercase tracking-[0.18em] text-zinc-500">
+                            {{ vm.contaPendenteExclusao.tipo }}<span ng-if="vm.contaPendenteExclusao.modalidade"> · {{ vm.labelsModalidade[vm.contaPendenteExclusao.modalidade] }}</span>
+                        </p>
                     </div>
                 </div>
 

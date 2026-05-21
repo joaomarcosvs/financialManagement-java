@@ -26,6 +26,83 @@
         </div>
     </div>
 
+    <section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-4">
+        <div class="flex flex-wrap gap-3 items-end">
+            <div class="flex-1 min-w-[160px]">
+                <label class="mb-1 block text-xs uppercase tracking-[0.18em] text-zinc-500">Descrição</label>
+                <input
+                    type="text"
+                    ng-model="vm.filtro.descricao"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-3 py-2 text-sm text-zinc-100 outline-none transition focus:border-emerald-500"
+                    placeholder="Buscar..."
+                >
+            </div>
+
+            <div class="min-w-[130px]">
+                <label class="mb-1 block text-xs uppercase tracking-[0.18em] text-zinc-500">Tipo</label>
+                <select
+                    ng-model="vm.filtro.tipo"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-[#080d0b] px-3 py-2 text-sm text-zinc-100 outline-none transition focus:border-emerald-500"
+                >
+                    <option value="">Todos</option>
+                    <option value="RECEITA">Receita</option>
+                    <option value="DESPESA">Despesa</option>
+                </select>
+            </div>
+
+            <div class="min-w-[160px]">
+                <label class="mb-1 block text-xs uppercase tracking-[0.18em] text-zinc-500">Categoria</label>
+                <select
+                    ng-model="vm.filtro.categoriaId"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-[#080d0b] px-3 py-2 text-sm text-zinc-100 outline-none transition focus:border-emerald-500"
+                >
+                    <option value="">Todas</option>
+                    <option ng-repeat="c in vm.listaCategoriasReais" value="{{ c.id }}">{{ c.nome }}</option>
+                </select>
+            </div>
+
+            <div class="min-w-[140px]">
+                <label class="mb-1 block text-xs uppercase tracking-[0.18em] text-zinc-500">Tag</label>
+                <input
+                    type="text"
+                    ng-model="vm.filtro.tag"
+                    class="w-full rounded-xl border border-[#10b981]/15 bg-black/30 px-3 py-2 text-sm text-zinc-100 outline-none transition focus:border-emerald-500"
+                    placeholder="#tag..."
+                >
+            </div>
+
+            <button
+                type="button"
+                ng-click="vm.limparFiltros()"
+                class="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-zinc-400 transition hover:bg-white/5 hover:text-zinc-100"
+            >
+                Limpar
+            </button>
+
+            <button
+                type="button"
+                ng-click="vm.exportarCSV()"
+                ng-disabled="!vm.transacoes.length"
+                class="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/20"
+                ng-class="{ 'opacity-50 cursor-not-allowed': !vm.transacoes.length }"
+            >
+                <i class="fa-solid fa-download"></i>
+                CSV
+            </button>
+
+            <button
+                type="button"
+                ng-click="vm.exportarPDF()"
+                ng-disabled="!vm.transacoes.length"
+                class="inline-flex items-center gap-2 rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-2 text-sm font-medium text-sky-300 transition hover:bg-sky-500/20"
+                ng-class="{ 'opacity-50 cursor-not-allowed': !vm.transacoes.length }"
+            >
+                <i class="fa-solid fa-file-pdf"></i>
+                PDF
+            </button>
+        </div>
+    </section>
+
     <section class="overflow-hidden rounded-2xl border border-[#10b981]/10 bg-[#080d0b]">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-[#10b981]/10">
@@ -35,17 +112,26 @@
                         <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Descrição</th>
                         <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Categoria</th>
                         <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Tipo</th>
+                        <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Origem</th>
                         <th class="px-6 py-4 text-left text-xs uppercase tracking-[0.2em] text-gray-400">Valor</th>
                         <th class="px-6 py-4 text-right text-xs uppercase tracking-[0.2em] text-gray-400">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr
-                        ng-repeat="t in vm.transacoes"
+                        ng-repeat="t in vm.transacoesFiltradas()"
                         class="border-t border-[#10b981]/10 text-sm text-zinc-300 transition-colors hover:bg-[#10b981]/5"
                     >
                         <td class="whitespace-nowrap px-6 py-4">{{ t.dataTransacao | date:'dd/MM/yyyy' }}</td>
-                        <td class="px-6 py-4 text-zinc-200">{{ t.descricao || '-' }}</td>
+                        <td class="px-6 py-4 text-zinc-200">
+                            {{ t.descricao || '-' }}
+                            <div ng-if="t.tags && t.tags.length" class="mt-1 flex flex-wrap gap-1">
+                                <span
+                                    ng-repeat="tag in t.tags"
+                                    class="inline-flex rounded-full bg-zinc-700/60 px-2 py-0.5 text-[10px] font-medium text-zinc-400"
+                                >#{{ tag }}</span>
+                            </div>
+                        </td>
                         <td class="px-6 py-4">{{ t.categoriaNome }}</td>
                         <td class="px-6 py-4">
                             <span
@@ -57,6 +143,24 @@
                                 }"
                             >
                                 {{ t.tipo }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span
+                                ng-if="t.origem === 'WHATSAPP'"
+                                title="Importado via WhatsApp"
+                                class="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400"
+                            >
+                                <i class="fa-brands fa-whatsapp"></i>
+                                <span>WhatsApp</span>
+                            </span>
+                            <span
+                                ng-if="t.origem !== 'WHATSAPP'"
+                                title="Lançamento manual"
+                                class="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-500"
+                            >
+                                <i class="fa-solid fa-pencil"></i>
+                                <span>Manual</span>
                             </span>
                         </td>
                         <td
@@ -95,9 +199,9 @@
                             </button>
                         </td>
                     </tr>
-                    <tr ng-if="!vm.transacoes.length && !vm.mensagemErro">
-                        <td colspan="6" class="px-6 py-10 text-center text-sm text-zinc-500">
-                            Nenhuma transação encontrada para este usuário.
+                    <tr ng-if="!vm.transacoesFiltradas().length && !vm.mensagemErro">
+                        <td colspan="7" class="px-6 py-10 text-center text-sm text-zinc-500">
+                            Nenhuma transação encontrada para este período.
                         </td>
                     </tr>
                 </tbody>
@@ -160,6 +264,16 @@
                             {{ vm.transacaoPendenteExclusao.valor | mascaraPrivacidade }}
                         </p>
                     </div>
+                </div>
+            </div>
+
+            <div
+                ng-if="vm.transacaoPendenteExclusao.origem === 'WHATSAPP'"
+                class="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3"
+            >
+                <div class="flex items-center gap-2 text-amber-400">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <p class="text-sm font-medium">Esta transação foi importada via WhatsApp. Tem certeza que deseja excluir?</p>
                 </div>
             </div>
 
@@ -377,6 +491,36 @@
         </div>
     </div>
 
+    <div ng-show="vm.confirmacaoEdicaoAberta" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-2xl border border-amber-500/25 bg-[#0a1410] p-6 shadow-2xl">
+            <div class="flex items-start gap-4">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-500/20 bg-amber-500/10 text-amber-400 text-lg">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-zinc-100">Transação importada</h3>
+                    <p class="mt-1 text-sm text-zinc-400">Esta transação foi importada via WhatsApp. Deseja editá-la mesmo assim?</p>
+                </div>
+            </div>
+            <div class="mt-5 flex justify-end gap-3">
+                <button
+                    type="button"
+                    ng-click="vm.cancelarConfirmacaoEdicao()"
+                    class="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/5"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="button"
+                    ng-click="vm.confirmarAberturaEdicao()"
+                    class="rounded-xl bg-amber-500 px-5 py-2 text-sm font-semibold text-zinc-900 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400"
+                >
+                    Sim, editar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div ng-if="vm.modalEdicaoAberto" ng-click="vm.fecharModalEdicao()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm">
         <div ng-click="$event.stopPropagation()" class="w-full max-w-3xl rounded-2xl border border-[#10b981]/30 bg-[#0a1410] p-8 shadow-2xl shadow-emerald-500/20">
             <div class="mb-6 flex items-start justify-between gap-4">
@@ -496,6 +640,55 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Meta overspending warning modal -->
+    <div ng-if="vm.avisoMetaAberto" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-2xl border border-amber-500/30 bg-[#0e0b03] p-8 shadow-2xl shadow-amber-500/15">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-xl font-semibold text-zinc-100">Meta em risco</h2>
+                    <p class="mt-1 text-sm text-zinc-400">Esta transação vai ultrapassar o limite da meta <span class="font-semibold text-amber-400">{{ vm.avisoMetaInfo.nomeMeta }}</span>.</p>
+                </div>
+            </div>
+
+            <div class="mt-6 space-y-2 rounded-xl border border-amber-500/20 bg-amber-500/6 px-4 py-4 text-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-zinc-400">Gasto atual</span>
+                    <span class="font-semibold text-zinc-200">{{ vm.avisoMetaInfo.valorGasto | currency:'R$ ':2 }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-zinc-400">Após esta transação</span>
+                    <span class="font-semibold text-amber-300">{{ vm.avisoMetaInfo.novoTotal | currency:'R$ ':2 }}</span>
+                </div>
+                <div class="flex items-center justify-between border-t border-amber-500/20 pt-2">
+                    <span class="text-zinc-400">Limite da meta</span>
+                    <span class="font-semibold text-zinc-100">{{ vm.avisoMetaInfo.valorLimite | currency:'R$ ':2 }}</span>
+                </div>
+            </div>
+
+            <p class="mt-4 text-sm text-zinc-500">Deseja salvar mesmo assim?</p>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button
+                    type="button"
+                    ng-click="vm.cancelarAvisoMeta()"
+                    class="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/5"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="button"
+                    ng-click="vm.confirmarSalvarComAvisoMeta()"
+                    class="rounded-xl bg-amber-500 px-5 py-2 text-sm font-semibold text-zinc-900 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400"
+                >
+                    Salvar mesmo assim
+                </button>
+            </div>
         </div>
     </div>
 </div>

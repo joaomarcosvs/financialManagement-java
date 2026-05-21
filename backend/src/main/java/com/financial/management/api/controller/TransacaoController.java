@@ -103,6 +103,11 @@ public class TransacaoController {
     }
 
     private TransacaoResponseDTO toResponseDTO(Transacao transacao) {
+        List<String> tags = transacao.getTags().stream()
+            .map(tag -> tag.getNome())
+            .sorted()
+            .toList();
+
         return new TransacaoResponseDTO(
             transacao.getId(),
             transacao.getValor(),
@@ -113,7 +118,9 @@ public class TransacaoController {
             transacao.getCategoria().getId(),
             transacao.getCategoria().getNome(),
             transacao.getCategoria().getCor(),
-            transacao.getCategoria().getTipo()
+            transacao.getCategoria().getTipo(),
+            transacao.getOrigem(),
+            tags
         );
     }
 }

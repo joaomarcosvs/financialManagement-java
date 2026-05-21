@@ -1,255 +1,188 @@
 <style>
     @keyframes login-line-flow {
-        0% {
-            stroke-dashoffset: 0;
-            opacity: 0.3;
-        }
-
-        50% {
-            opacity: 0.95;
-        }
-
-        100% {
-            stroke-dashoffset: -220;
-            opacity: 0.45;
-        }
+        0%   { stroke-dashoffset: 0;    opacity: .3; }
+        50%  { opacity: .95; }
+        100% { stroke-dashoffset: -220; opacity: .45; }
     }
-
     @keyframes login-float-a {
-        0%, 100% {
-            transform: translate3d(0, 0, 0) scale(1);
-        }
-
-        50% {
-            transform: translate3d(22px, -12px, 0) scale(1.03);
-        }
+        0%,100% { transform: translate3d(0,0,0) scale(1); }
+        50%     { transform: translate3d(22px,-12px,0) scale(1.03); }
     }
-
     @keyframes login-float-b {
-        0%, 100% {
-            transform: translate3d(0, 0, 0) scale(1);
-        }
-
-        50% {
-            transform: translate3d(-20px, 18px, 0) scale(0.98);
-        }
+        0%,100% { transform: translate3d(0,0,0) scale(1); }
+        50%     { transform: translate3d(-20px,18px,0) scale(.98); }
     }
-
     @keyframes login-float-c {
-        0%, 100% {
-            transform: translate3d(0, 0, 0) scale(1);
-        }
-
-        50% {
-            transform: translate3d(14px, 14px, 0) scale(1.04);
-        }
+        0%,100% { transform: translate3d(0,0,0) scale(1); }
+        50%     { transform: translate3d(14px,14px,0) scale(1.04); }
     }
-
     @keyframes login-orb-pulse {
-        0%, 100% {
-            opacity: 0.12;
-            transform: scale(1);
-        }
-
-        50% {
-            opacity: 0.22;
-            transform: scale(1.1);
-        }
+        0%,100% { opacity:.12; transform:scale(1); }
+        50%     { opacity:.22; transform:scale(1.1); }
     }
-
     @keyframes login-dot-pulse {
-        0%, 100% {
-            opacity: 0.25;
-            transform: scale(0.85);
-        }
+        0%,100% { opacity:.25; transform:scale(.85); }
+        50%     { opacity:1;   transform:scale(1.25); }
+    }
+    .login-ambient-track    { fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:2; opacity:.2; }
+    .login-ambient-line     { fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-dasharray:18 24 110 30; animation:login-line-flow 18s linear infinite; }
+    .login-ambient-line-soft{ stroke-width:3; stroke-dasharray:12 18 68 24; }
+    .login-ambient-line-bright{ filter:drop-shadow(0 0 10px rgba(52,211,153,.35)) drop-shadow(0 0 26px rgba(110,231,183,.18)); }
+    .login-float-a { animation:login-float-a 18s ease-in-out infinite; }
+    .login-float-b { animation:login-float-b 20s ease-in-out infinite; }
+    .login-float-c { animation:login-float-c 16s ease-in-out infinite; }
+    .login-orb     { position:absolute; border-radius:9999px; filter:blur(96px); animation:login-orb-pulse 11s ease-in-out infinite; }
+    .login-ambient-pulse { animation:login-dot-pulse 2.8s ease-in-out infinite; transform-origin:center; filter:drop-shadow(0 0 8px rgba(52,211,153,.75)) drop-shadow(0 0 18px rgba(167,243,208,.35)); }
 
-        50% {
-            opacity: 1;
-            transform: scale(1.25);
-        }
+    @keyframes fm-slide-up {
+        from { opacity:0; transform:translateY(36px) scale(.985); }
+        to   { opacity:1; transform:translateY(0)    scale(1); }
+    }
+    @keyframes fm-fade-in {
+        from { opacity:0; }
+        to   { opacity:1; }
+    }
+    @keyframes fm-stat-pop {
+        from { opacity:0; transform:translateY(10px) scale(.96); }
+        to   { opacity:1; transform:translateY(0)    scale(1); }
+    }
+    @keyframes fm-icon-spin {
+        from { transform:rotate(0deg); }
+        to   { transform:rotate(360deg); }
     }
 
-    .login-ambient-track {
-        fill: none;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 2;
-        opacity: 0.2;
+    .fm-card-enter  { animation:fm-slide-up .65s cubic-bezier(.22,1,.36,1) both; animation-delay:.08s; }
+    .fm-panel-enter { animation:fm-slide-up .65s cubic-bezier(.22,1,.36,1) both; animation-delay:.22s; }
+    .fm-title-enter { animation:fm-fade-in  .5s ease both; animation-delay:.05s; }
+    .fm-stat-1 { animation:fm-stat-pop .5s cubic-bezier(.22,1,.36,1) both; animation-delay:.45s; }
+    .fm-stat-2 { animation:fm-stat-pop .5s cubic-bezier(.22,1,.36,1) both; animation-delay:.58s; }
+    .fm-stat-3 { animation:fm-stat-pop .5s cubic-bezier(.22,1,.36,1) both; animation-delay:.71s; }
+
+    .fm-input { transition: border-color .2s, box-shadow .2s; }
+    .fm-input:focus {
+        border-color:#10b981 !important;
+        box-shadow:0 0 0 3px rgba(16,185,129,.18), 0 0 24px rgba(16,185,129,.09) !important;
+        outline:none;
     }
 
-    .login-ambient-line {
-        fill: none;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 4;
-        stroke-dasharray: 18 24 110 30;
-        animation: login-line-flow 18s linear infinite;
+    .fm-btn { position:relative; overflow:hidden; transition:transform .25s, box-shadow .25s; }
+    .fm-btn::after {
+        content:''; position:absolute; inset:0;
+        background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.22) 50%,transparent 80%);
+        background-size:200% 100%; transform:translateX(-100%); transition:transform .55s ease;
+    }
+    .fm-btn:hover::after { transform:translateX(100%); }
+    .fm-btn:hover        { transform:translateY(-2px); box-shadow:0 10px 32px rgba(16,185,129,.38); }
+    .fm-btn:active       { transform:translateY(0); }
+
+    .fm-feature-card { transition:border-color .25s, background .25s, transform .25s; }
+    .fm-feature-card:hover {
+        border-color:rgba(16,185,129,.35) !important;
+        background:rgba(16,185,129,.07) !important;
+        transform:translateX(4px);
     }
 
-    .login-ambient-line-soft {
-        stroke-width: 3;
-        stroke-dasharray: 12 18 68 24;
-    }
-
-    .login-ambient-line-bright {
-        filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.35)) drop-shadow(0 0 26px rgba(110, 231, 183, 0.18));
-    }
-
-    .login-float-a {
-        animation: login-float-a 18s ease-in-out infinite;
-    }
-
-    .login-float-b {
-        animation: login-float-b 20s ease-in-out infinite;
-    }
-
-    .login-float-c {
-        animation: login-float-c 16s ease-in-out infinite;
-    }
-
-    .login-orb {
-        position: absolute;
-        border-radius: 9999px;
-        filter: blur(96px);
-        animation: login-orb-pulse 11s ease-in-out infinite;
-    }
-
-    .login-ambient-pulse {
-        animation: login-dot-pulse 2.8s ease-in-out infinite;
-        transform-origin: center;
-        filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.75)) drop-shadow(0 0 18px rgba(167, 243, 208, 0.35));
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .login-ambient-line,
-        .login-float-a,
-        .login-float-b,
-        .login-float-c,
-        .login-orb,
-        .login-ambient-pulse {
-            animation: none !important;
-        }
-
-        .login-ambient-pulse {
-            display: none !important;
-        }
+    @media (prefers-reduced-motion:reduce) {
+        .login-ambient-line,.login-float-a,.login-float-b,.login-float-c,
+        .login-orb,.login-ambient-pulse,
+        .fm-card-enter,.fm-panel-enter,.fm-title-enter,
+        .fm-stat-1,.fm-stat-2,.fm-stat-3 { animation:none !important; }
+        .login-ambient-pulse { display:none !important; }
     }
 </style>
 
 <div class="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#06140f] to-black px-4 py-10 text-gray-300 lg:px-10">
     <div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden">
-        <div class="login-orb left-[-7rem] top-[8%] h-72 w-72 bg-emerald-500" style="animation-delay: -1.5s;"></div>
-        <div class="login-orb bottom-[-6rem] right-[-4rem] h-96 w-96 bg-green-400" style="animation-delay: -5s;"></div>
-        <div class="login-orb left-[42%] top-[16%] h-56 w-56 bg-teal-400" style="animation-delay: -8s;"></div>
+        <div class="login-orb left-[-7rem] top-[8%]  h-72 w-72 bg-emerald-500" style="animation-delay:-1.5s"></div>
+        <div class="login-orb bottom-[-6rem] right-[-4rem] h-96 w-96 bg-green-400" style="animation-delay:-5s"></div>
+        <div class="login-orb left-[42%] top-[16%]  h-56 w-56 bg-teal-400"    style="animation-delay:-8s"></div>
 
-        <svg class="absolute -left-8 top-0 h-[18rem] w-[40rem] opacity-90 lg:h-[24rem] lg:w-[56rem] login-float-a" viewBox="0 0 900 420">
-            <path class="login-ambient-track" stroke="#14532d" d="M220 -10 C248 118, 360 178, 540 186 C692 192, 822 214, 866 276"></path>
-            <path class="login-ambient-line login-ambient-line-bright" stroke="#86efac" d="M220 -10 C248 118, 360 178, 540 186 C692 192, 822 214, 866 276"></path>
-            <path class="login-ambient-line login-ambient-line-soft" stroke="#34d399" style="animation-delay: -7s; animation-duration: 22s;" d="M220 -10 C248 118, 360 178, 540 186 C692 192, 822 214, 866 276"></path>
+        <svg class="absolute -left-8 top-0 h-[18rem] w-[40rem] opacity-90 login-float-a lg:h-[24rem] lg:w-[56rem]" viewBox="0 0 900 420">
+            <path class="login-ambient-track" stroke="#14532d" d="M220 -10 C248 118,360 178,540 186 C692 192,822 214,866 276"/>
+            <path class="login-ambient-line login-ambient-line-bright" stroke="#86efac" d="M220 -10 C248 118,360 178,540 186 C692 192,822 214,866 276"/>
+            <path class="login-ambient-line login-ambient-line-soft" stroke="#34d399" style="animation-delay:-7s;animation-duration:22s" d="M220 -10 C248 118,360 178,540 186 C692 192,822 214,866 276"/>
             <circle class="login-ambient-pulse" cx="0" cy="0" r="3.5" fill="#bbf7d0">
-                <animate attributeName="r" values="2.5;4.8;2.5" dur="2.8s" repeatCount="indefinite"></animate>
-                <animateMotion dur="11s" repeatCount="indefinite" rotate="auto" path="M220 -10 C248 118, 360 178, 540 186 C692 192, 822 214, 866 276"></animateMotion>
+                <animate attributeName="r" values="2.5;4.8;2.5" dur="2.8s" repeatCount="indefinite"/>
+                <animateMotion dur="11s" repeatCount="indefinite" rotate="auto" path="M220 -10 C248 118,360 178,540 186 C692 192,822 214,866 276"/>
             </circle>
         </svg>
 
-        <svg class="absolute -left-10 top-[34%] h-[19rem] w-[22rem] opacity-80 lg:h-[23rem] lg:w-[26rem] login-float-b" viewBox="0 0 420 420">
-            <path class="login-ambient-track" stroke="#14532d" d="M-20 86 C98 82, 170 118, 210 206 C240 278, 286 336, 360 382"></path>
-            <path class="login-ambient-line login-ambient-line-bright" stroke="#6ee7b7" style="animation-duration: 19s;" d="M-20 86 C98 82, 170 118, 210 206 C240 278, 286 336, 360 382"></path>
-            <circle class="login-ambient-pulse" cx="0" cy="0" r="3" fill="#6ee7b7" style="animation-delay: -1.2s;">
-                <animate attributeName="r" values="2;4.4;2" dur="2.1s" repeatCount="indefinite"></animate>
-                <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path="M-20 86 C98 82, 170 118, 210 206 C240 278, 286 336, 360 382"></animateMotion>
+        <svg class="absolute -left-10 top-[34%] h-[19rem] w-[22rem] opacity-80 login-float-b lg:h-[23rem] lg:w-[26rem]" viewBox="0 0 420 420">
+            <path class="login-ambient-track" stroke="#14532d" d="M-20 86 C98 82,170 118,210 206 C240 278,286 336,360 382"/>
+            <path class="login-ambient-line login-ambient-line-bright" stroke="#6ee7b7" style="animation-duration:19s" d="M-20 86 C98 82,170 118,210 206 C240 278,286 336,360 382"/>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="3" fill="#6ee7b7" style="animation-delay:-1.2s">
+                <animate attributeName="r" values="2;4.4;2" dur="2.1s" repeatCount="indefinite"/>
+                <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path="M-20 86 C98 82,170 118,210 206 C240 278,286 336,360 382"/>
             </circle>
         </svg>
 
-        <svg class="absolute -bottom-8 -left-6 h-[15rem] w-[15rem] opacity-90 lg:h-[18rem] lg:w-[18rem] login-float-c" viewBox="0 0 280 280">
-            <path class="login-ambient-track" stroke="#14532d" d="M26 224 C10 132, 66 66, 142 68 C220 70, 262 132, 252 214 C242 286, 172 328, 98 306"></path>
-            <path class="login-ambient-line login-ambient-line-bright" stroke="#22c55e" style="animation-duration: 17s;" d="M26 224 C10 132, 66 66, 142 68 C220 70, 262 132, 252 214 C242 286, 172 328, 98 306"></path>
-            <circle class="login-ambient-pulse" cx="0" cy="0" r="4" fill="#4ade80" style="animation-delay: -0.8s;">
-                <animate attributeName="r" values="2.4;5.2;2.4" dur="2.5s" repeatCount="indefinite"></animate>
-                <animateMotion dur="12s" repeatCount="indefinite" rotate="auto" path="M26 224 C10 132, 66 66, 142 68 C220 70, 262 132, 252 214 C242 286, 172 328, 98 306"></animateMotion>
+        <svg class="absolute -bottom-8 -left-6 h-[15rem] w-[15rem] opacity-90 login-float-c lg:h-[18rem] lg:w-[18rem]" viewBox="0 0 280 280">
+            <path class="login-ambient-track" stroke="#14532d" d="M26 224 C10 132,66 66,142 68 C220 70,262 132,252 214 C242 286,172 328,98 306"/>
+            <path class="login-ambient-line login-ambient-line-bright" stroke="#22c55e" style="animation-duration:17s" d="M26 224 C10 132,66 66,142 68 C220 70,262 132,252 214 C242 286,172 328,98 306"/>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="4" fill="#4ade80" style="animation-delay:-.8s">
+                <animate attributeName="r" values="2.4;5.2;2.4" dur="2.5s" repeatCount="indefinite"/>
+                <animateMotion dur="12s" repeatCount="indefinite" rotate="auto" path="M26 224 C10 132,66 66,142 68 C220 70,262 132,252 214 C242 286,172 328,98 306"/>
             </circle>
         </svg>
 
-        <svg class="absolute right-0 top-0 h-[15rem] w-[10rem] opacity-80 lg:h-[18rem] lg:w-[12rem] login-float-b" viewBox="0 0 240 240">
-            <path class="login-ambient-track" stroke="#14532d" d="M176 0 C150 48, 154 98, 204 136"></path>
-            <path class="login-ambient-line login-ambient-line-soft login-ambient-line-bright" stroke="#a7f3d0" style="animation-duration: 14s;" d="M176 0 C150 48, 154 98, 204 136"></path>
-            <path class="login-ambient-track" stroke="#14532d" d="M220 0 C194 62, 208 122, 250 146"></path>
-            <path class="login-ambient-line login-ambient-line-soft" stroke="#4ade80" style="animation-delay: -6s; animation-duration: 16s;" d="M220 0 C194 62, 208 122, 250 146"></path>
-            <path class="login-ambient-track" stroke="#14532d" d="M122 38 C116 56, 118 72, 128 86"></path>
-            <path class="login-ambient-line login-ambient-line-soft" stroke="#6ee7b7" style="animation-delay: -3s; animation-duration: 13s;" d="M122 38 C116 56, 118 72, 128 86"></path>
+        <svg class="absolute right-0 top-0 h-[15rem] w-[10rem] opacity-80 login-float-b lg:h-[18rem] lg:w-[12rem]" viewBox="0 0 240 240">
+            <path class="login-ambient-track" stroke="#14532d" d="M176 0 C150 48,154 98,204 136"/>
+            <path class="login-ambient-line login-ambient-line-soft login-ambient-line-bright" stroke="#a7f3d0" style="animation-duration:14s" d="M176 0 C150 48,154 98,204 136"/>
             <circle class="login-ambient-pulse" cx="0" cy="0" r="3" fill="#bbf7d0">
-                <animate attributeName="r" values="1.8;3.8;1.8" dur="1.9s" repeatCount="indefinite"></animate>
-                <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path="M176 0 C150 48, 154 98, 204 136"></animateMotion>
-            </circle>
-            <circle class="login-ambient-pulse" cx="0" cy="0" r="2.6" fill="#4ade80" style="animation-delay: -1s;">
-                <animate attributeName="r" values="1.6;3.2;1.6" dur="2.3s" repeatCount="indefinite"></animate>
-                <animateMotion dur="6s" repeatCount="indefinite" rotate="auto" path="M122 38 C116 56, 118 72, 128 86"></animateMotion>
+                <animate attributeName="r" values="1.8;3.8;1.8" dur="1.9s" repeatCount="indefinite"/>
+                <animateMotion dur="7s" repeatCount="indefinite" rotate="auto" path="M176 0 C150 48,154 98,204 136"/>
             </circle>
         </svg>
 
-        <svg class="absolute left-[18%] top-[8%] hidden h-[8rem] w-[18rem] opacity-70 lg:block login-float-c" viewBox="0 0 320 140">
-            <path class="login-ambient-track" stroke="#14532d" d="M0 42 C68 16, 138 12, 208 34 C244 46, 276 66, 320 108"></path>
-            <path class="login-ambient-line login-ambient-line-soft login-ambient-line-bright" stroke="#6ee7b7" style="animation-duration: 18s;" d="M0 42 C68 16, 138 12, 208 34 C244 46, 276 66, 320 108"></path>
-            <circle class="login-ambient-pulse" cx="0" cy="0" r="3.2" fill="#6ee7b7" style="animation-delay: -1.6s;">
-                <animate attributeName="r" values="1.8;4.2;1.8" dur="2.2s" repeatCount="indefinite"></animate>
-                <animateMotion dur="10s" repeatCount="indefinite" rotate="auto" path="M0 42 C68 16, 138 12, 208 34 C244 46, 276 66, 320 108"></animateMotion>
-            </circle>
-        </svg>
-
-        <svg class="absolute -right-6 top-[56%] h-[15rem] w-[19rem] opacity-80 lg:h-[18rem] lg:w-[24rem] login-float-a" viewBox="0 0 420 280">
-            <path class="login-ambient-track" stroke="#14532d" d="M22 126 C112 120, 170 152, 242 214 C294 258, 350 282, 418 258"></path>
-            <path class="login-ambient-line login-ambient-line-bright" stroke="#86efac" style="animation-delay: -8s; animation-duration: 21s;" d="M22 126 C112 120, 170 152, 242 214 C294 258, 350 282, 418 258"></path>
-            <circle class="login-ambient-pulse" cx="0" cy="0" r="3.3" fill="#86efac" style="animation-delay: -1.4s;">
-                <animate attributeName="r" values="2;4.6;2" dur="2.6s" repeatCount="indefinite"></animate>
-                <animateMotion dur="11s" repeatCount="indefinite" rotate="auto" path="M22 126 C112 120, 170 152, 242 214 C294 258, 350 282, 418 258"></animateMotion>
-            </circle>
-        </svg>
-
-        <svg class="absolute bottom-[10%] left-[22%] hidden h-[8rem] w-[18rem] opacity-60 lg:block login-float-c" viewBox="0 0 280 140">
-            <path class="login-ambient-track" stroke="#14532d" d="M0 86 C52 104, 94 102, 136 98 C190 92, 232 100, 266 130"></path>
-            <path class="login-ambient-line login-ambient-line-soft" stroke="#34d399" style="animation-duration: 15s;" d="M0 86 C52 104, 94 102, 136 98 C190 92, 232 100, 266 130"></path>
-            <circle class="login-ambient-pulse" cx="0" cy="0" r="2.8" fill="#34d399">
-                <animate attributeName="r" values="1.5;3.8;1.5" dur="1.8s" repeatCount="indefinite"></animate>
-                <animateMotion dur="8s" repeatCount="indefinite" rotate="auto" path="M0 86 C52 104, 94 102, 136 98 C190 92, 232 100, 266 130"></animateMotion>
-            </circle>
-        </svg>
-
-        <svg class="absolute bottom-[6%] right-[8%] hidden h-[11rem] w-[16rem] opacity-70 lg:block login-float-b" viewBox="0 0 280 180">
-            <path class="login-ambient-track" stroke="#14532d" d="M0 48 C72 70, 118 106, 156 138 C188 166, 228 176, 280 160"></path>
-            <path class="login-ambient-line login-ambient-line-soft" stroke="#4ade80" style="animation-delay: -4s; animation-duration: 17s;" d="M0 48 C72 70, 118 106, 156 138 C188 166, 228 176, 280 160"></path>
-            <circle class="login-ambient-pulse" cx="0" cy="0" r="3.1" fill="#4ade80" style="animation-delay: -0.6s;">
-                <animate attributeName="r" values="1.8;4.1;1.8" dur="2.4s" repeatCount="indefinite"></animate>
-                <animateMotion dur="9.5s" repeatCount="indefinite" rotate="auto" path="M0 48 C72 70, 118 106, 156 138 C188 166, 228 176, 280 160"></animateMotion>
+        <svg class="absolute -right-6 top-[56%] h-[15rem] w-[19rem] opacity-80 login-float-a lg:h-[18rem] lg:w-[24rem]" viewBox="0 0 420 280">
+            <path class="login-ambient-track" stroke="#14532d" d="M22 126 C112 120,170 152,242 214 C294 258,350 282,418 258"/>
+            <path class="login-ambient-line login-ambient-line-bright" stroke="#86efac" style="animation-delay:-8s;animation-duration:21s" d="M22 126 C112 120,170 152,242 214 C294 258,350 282,418 258"/>
+            <circle class="login-ambient-pulse" cx="0" cy="0" r="3.3" fill="#86efac" style="animation-delay:-1.4s">
+                <animate attributeName="r" values="2;4.6;2" dur="2.6s" repeatCount="indefinite"/>
+                <animateMotion dur="11s" repeatCount="indefinite" rotate="auto" path="M22 126 C112 120,170 152,242 214 C294 258,350 282,418 258"/>
             </circle>
         </svg>
     </div>
 
     <div class="relative z-10 mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+
+        <!-- LEFT: form -->
         <section class="mx-auto w-full max-w-lg">
-            <div class="mb-8">
-                <h1 class="mt-6 text-4xl font-semibold tracking-tight text-zinc-100 sm:text-5xl">
+            <div class="fm-title-enter mb-8">
+                <div class="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/8 px-4 py-1.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400" style="animation:login-dot-pulse 2s ease-in-out infinite"></span>
+                    <span class="text-xs font-semibold uppercase tracking-[.22em] text-emerald-400">Cadastro gratuito</span>
+                </div>
+                <h1 class="mt-5 text-4xl font-semibold tracking-tight text-zinc-100 sm:text-5xl">
                     Crie sua conta
                 </h1>
-                <p class="mt-4 max-w-md text-base leading-7 text-zinc-400">
-                    Junte-se à plataforma premium de gestão e organize seu financeiro com clareza, contexto e controle desde o primeiro acesso.
+                <p class="mt-3 max-w-md text-base leading-7 text-zinc-400">
+                    Preencha os dados abaixo e comece a gerenciar suas finanças com clareza e controle total.
                 </p>
             </div>
 
-            <div class="rounded-2xl border border-[#10b981]/20 bg-[#080d0b] p-8 shadow-2xl shadow-black/30">
-                <div>
-                    <h2 class="text-2xl font-semibold text-zinc-100">Crie sua conta</h2>
-                    <p class="mt-2 text-sm text-zinc-500">Cadastre-se para iniciar sua jornada no painel premium.</p>
+            <div class="fm-card-enter rounded-2xl border border-[#10b981]/20 bg-[#080d0b] p-8 shadow-2xl shadow-black/30 ring-1 ring-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/12 text-emerald-400">
+                        <i class="fa-solid fa-user-plus text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold text-zinc-100">Dados da conta</h2>
+                        <p class="text-xs text-zinc-500">Informações protegidas com criptografia ponta a ponta</p>
+                    </div>
                 </div>
 
-                <form class="mt-8 space-y-6" ng-submit="vm.cadastrar()">
+                <form class="mt-7 space-y-5" ng-submit="vm.cadastrar()">
                     <div class="space-y-4">
                         <div>
-                            <label for="nome" class="mb-2 block text-sm font-medium text-zinc-300">Nome Completo</label>
+                            <label for="nome" class="mb-2 block text-sm font-medium text-zinc-300">
+                                <i class="fa-regular fa-user mr-1.5 text-zinc-500"></i>Nome completo
+                            </label>
                             <input
                                 id="nome"
                                 type="text"
                                 ng-model="vm.usuario.nome"
-                                class="w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                class="fm-input w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 transition"
                                 placeholder="Seu nome completo"
                                 autocomplete="name"
                                 required
@@ -257,12 +190,14 @@
                         </div>
 
                         <div>
-                            <label for="registroEmail" class="mb-2 block text-sm font-medium text-zinc-300">E-mail</label>
+                            <label for="registroEmail" class="mb-2 block text-sm font-medium text-zinc-300">
+                                <i class="fa-regular fa-envelope mr-1.5 text-zinc-500"></i>E-mail
+                            </label>
                             <input
                                 id="registroEmail"
                                 type="email"
                                 ng-model="vm.usuario.email"
-                                class="w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                class="fm-input w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 transition"
                                 placeholder="voce@exemplo.com"
                                 autocomplete="email"
                                 required
@@ -270,25 +205,30 @@
                         </div>
 
                         <div>
-                            <label for="telefone" class="mb-2 block text-sm font-medium text-zinc-300">Telefone</label>
+                            <label for="telefone" class="mb-2 block text-sm font-medium text-zinc-300">
+                                <i class="fa-solid fa-mobile-screen-button mr-1.5 text-zinc-500"></i>Telefone
+                                <span class="ml-1 text-[11px] text-zinc-600">(para importação via WhatsApp)</span>
+                            </label>
                             <input
                                 id="telefone"
                                 type="text"
                                 ng-model="vm.usuario.telefone"
                                 mask-telefone
-                                class="w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                class="fm-input w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 transition"
                                 placeholder="(11) 99999-9999"
                                 autocomplete="tel"
                             >
                         </div>
 
                         <div>
-                            <label for="registroSenha" class="mb-2 block text-sm font-medium text-zinc-300">Senha</label>
+                            <label for="registroSenha" class="mb-2 block text-sm font-medium text-zinc-300">
+                                <i class="fa-solid fa-key mr-1.5 text-zinc-500"></i>Senha
+                            </label>
                             <input
                                 id="registroSenha"
                                 type="password"
                                 ng-model="vm.usuario.senha"
-                                class="w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                class="fm-input w-full rounded-xl border border-[#10b981]/10 bg-black/30 px-4 py-3 text-zinc-100 transition"
                                 placeholder="Crie uma senha segura"
                                 autocomplete="new-password"
                                 required
@@ -296,65 +236,126 @@
                         </div>
                     </div>
 
-                    <p class="text-sm font-medium text-rose-400" ng-if="vm.mensagemErro">
-                        {{ vm.mensagemErro }}
+                    <p class="flex items-center gap-2 rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-400" ng-if="vm.mensagemErro">
+                        <i class="fa-solid fa-circle-exclamation"></i>{{ vm.mensagemErro }}
                     </p>
 
-                    <button type="submit" ng-disabled="vm.processandoCadastro" class="w-full rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white shadow-lg shadow-emerald-500/20 transition duration-300 hover:bg-emerald-400" ng-class="{ 'cursor-not-allowed opacity-60': vm.processandoCadastro }">
-                        <span ng-if="!vm.processandoCadastro">Criar Conta</span>
-                        <span ng-if="vm.processandoCadastro">Criando...</span>
+                    <button
+                        type="submit"
+                        ng-disabled="vm.processandoCadastro"
+                        class="fm-btn w-full rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white shadow-lg shadow-emerald-500/25"
+                        ng-class="{'cursor-not-allowed opacity-60 pointer-events-none': vm.processandoCadastro}"
+                    >
+                        <span class="flex items-center justify-center gap-2" ng-if="!vm.processandoCadastro">
+                            <i class="fa-solid fa-user-plus"></i>Criar minha conta
+                        </span>
+                        <span class="flex items-center justify-center gap-2" ng-if="vm.processandoCadastro">
+                            <i class="fa-solid fa-circle-notch" style="animation:fm-icon-spin .75s linear infinite"></i>Criando...
+                        </span>
                     </button>
 
                     <p class="text-center text-sm text-zinc-500">
                         Já tem uma conta?
-                        <a href="#!/login" class="text-emerald-500 transition hover:text-emerald-400">Faça login</a>
+                        <a href="#!/login" class="font-medium text-emerald-400 underline-offset-2 transition hover:text-emerald-300 hover:underline">Faça login</a>
                     </p>
                 </form>
             </div>
         </section>
 
-        <section class="relative mx-auto w-full max-w-2xl">
-            <div class="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-600 opacity-20 blur-3xl"></div>
+        <!-- RIGHT: feature panel -->
+        <section class="fm-panel-enter relative mx-auto w-full max-w-2xl">
+            <div class="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-600 opacity-18 blur-3xl"></div>
 
             <div class="relative rounded-3xl border border-[#10b981]/20 bg-gradient-to-br from-[#0a1410] to-[#050a08] p-8 shadow-2xl shadow-emerald-500/10 sm:p-10 lg:p-12">
+
                 <div class="max-w-xl">
-                    <p class="text-sm font-semibold uppercase tracking-[0.35em] text-emerald-400/80">Premium Fintech</p>
+                    <p class="text-xs font-semibold uppercase tracking-[.35em] text-emerald-400/80">Premium Fintech</p>
                     <h2 class="mt-4 text-3xl font-semibold tracking-tight text-emerald-400 sm:text-4xl">
-                        Centralize seu financeiro em um cockpit pronto para a proxima fase.
+                        Comece sem custo, evolua com tecnologia.
                     </h2>
-                    <p class="mt-4 text-base leading-7 text-zinc-400">
-                        Uma plataforma pensada para integrar contas, prever movimentos e dar contexto imediato para suas decisoes financeiras.
+                    <p class="mt-3 text-base leading-7 text-zinc-400">
+                        Uma plataforma pensada para integrar suas contas, prever movimentos e dar contexto financeiro em tempo real.
                     </p>
                 </div>
 
-                <ul class="mt-10 space-y-4 text-sm text-zinc-300 sm:text-base">
-                    <li class="flex items-start gap-3">
-                        <span class="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-                            <i class="fa-solid fa-link text-xs"></i>
-                        </span>
-                        <span>Integracao futura com Open Finance</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <span class="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-                            <i class="fa-solid fa-chart-line text-xs"></i>
-                        </span>
-                        <span>Analise inteligente de gastos em tempo real</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <span class="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-                            <i class="fa-solid fa-shield-halved text-xs"></i>
-                        </span>
-                        <span>Seguranca de nivel bancario ponta a ponta</span>
-                    </li>
-                </ul>
+                <div class="mt-8 grid grid-cols-3 gap-3">
+                    <div class="fm-stat-1 rounded-2xl border border-[#10b981]/15 bg-black/25 p-4 text-center">
+                        <p class="text-2xl font-bold text-emerald-400">100%</p>
+                        <p class="mt-1 text-[11px] uppercase tracking-widest text-zinc-500">Gratuito</p>
+                    </div>
+                    <div class="fm-stat-2 rounded-2xl border border-[#10b981]/15 bg-black/25 p-4 text-center">
+                        <p class="text-2xl font-bold text-sky-400">IA</p>
+                        <p class="mt-1 text-[11px] uppercase tracking-widest text-zinc-500">Importação</p>
+                    </div>
+                    <div class="fm-stat-3 rounded-2xl border border-[#10b981]/15 bg-black/25 p-4 text-center">
+                        <p class="text-2xl font-bold text-amber-400">360°</p>
+                        <p class="mt-1 text-[11px] uppercase tracking-widest text-zinc-500">Visão total</p>
+                    </div>
+                </div>
 
-                <div class="mt-12 border-t border-[#10b981]/10 pt-8">
-                    <p class="text-sm font-medium text-zinc-400">Conectado com o seu ecossistema:</p>
-                    <div class="mt-4 flex flex-wrap items-center gap-6">
-                        <img src="assets/images/itau.svg" alt="Itau" class="h-8 w-auto opacity-50 transition-opacity duration-300 hover:opacity-100">
-                        <img src="assets/images/nubank.svg" alt="Nubank" class="h-8 w-auto opacity-50 transition-opacity duration-300 hover:opacity-100">
-                        <img src="assets/images/picpay.svg" alt="PicPay" class="h-8 w-auto opacity-50 transition-opacity duration-300 hover:opacity-100">
-                        <img src="assets/images/n8n.svg" alt="n8n" class="h-8 w-auto opacity-50 transition-opacity duration-300 hover:opacity-100">
+                <div class="mt-6 space-y-3">
+                    <div class="fm-feature-card flex items-start gap-4 rounded-2xl border border-[#10b981]/10 bg-black/20 px-4 py-4">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-emerald-400">
+                            <i class="fa-solid fa-chart-line text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-zinc-100">Dashboard analítico</p>
+                            <p class="mt-0.5 text-xs text-zinc-500">Receitas, despesas, metas e tendências em gráficos interativos.</p>
+                        </div>
+                    </div>
+                    <div class="fm-feature-card flex items-start gap-4 rounded-2xl border border-[#10b981]/10 bg-black/20 px-4 py-4">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-500/12 text-sky-400">
+                            <i class="fa-brands fa-whatsapp text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-zinc-100">Importação via WhatsApp</p>
+                            <p class="mt-0.5 text-xs text-zinc-500">Envie o extrato pelo WhatsApp — o n8n cuida do resto automaticamente.</p>
+                        </div>
+                    </div>
+                    <div class="fm-feature-card flex items-start gap-4 rounded-2xl border border-[#10b981]/10 bg-black/20 px-4 py-4">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/12 text-amber-400">
+                            <i class="fa-solid fa-bullseye text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-zinc-100">Metas por categoria</p>
+                            <p class="mt-0.5 text-xs text-zinc-500">Defina limites de gasto e receba alertas quando se aproximar do teto.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 overflow-hidden rounded-2xl border border-[#10b981]/10 bg-black/25 px-5 py-4">
+                    <p class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">Prévia — fluxo financeiro</p>
+                    <svg viewBox="0 0 280 56" class="w-full opacity-70" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="rg-green" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#10b981" stop-opacity=".35"/>
+                                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                            </linearGradient>
+                            <linearGradient id="rg-rose" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#f43f5e" stop-opacity=".25"/>
+                                <stop offset="100%" stop-color="#f43f5e" stop-opacity="0"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M0 46 C28 44,48 18,70 20 C92 22,100 36,120 32 C140 28,158 12,190 14 C218 16,248 8,280 10 L280 56 L0 56Z" fill="url(#rg-green)"/>
+                        <path d="M0 46 C28 44,48 18,70 20 C92 22,100 36,120 32 C140 28,158 12,190 14 C218 16,248 8,280 10" fill="none" stroke="#10b981" stroke-width="1.8"/>
+                        <path d="M0 50 C30 50,50 38,72 36 C96 34,110 44,134 42 C158 40,180 30,210 28 C236 26,262 32,280 30 L280 56 L0 56Z" fill="url(#rg-rose)"/>
+                        <path d="M0 50 C30 50,50 38,72 36 C96 34,110 44,134 42 C158 40,180 30,210 28 C236 26,262 32,280 30" fill="none" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="4 2"/>
+                        <circle cx="190" cy="14" r="3" fill="#10b981"/>
+                        <circle cx="210" cy="28" r="2.5" fill="#f43f5e"/>
+                    </svg>
+                    <div class="mt-2 flex items-center gap-4">
+                        <span class="flex items-center gap-1.5 text-[10px] text-zinc-500"><span class="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>Receitas</span>
+                        <span class="flex items-center gap-1.5 text-[10px] text-zinc-500"><span class="inline-block h-2 w-2 rounded-full bg-rose-400"></span>Despesas</span>
+                    </div>
+                </div>
+
+                <div class="mt-8 border-t border-[#10b981]/10 pt-6">
+                    <p class="text-xs font-medium text-zinc-500">Conectado com o seu ecossistema:</p>
+                    <div class="mt-4 flex flex-wrap items-center gap-5">
+                        <img src="assets/images/itau.svg"   alt="Itau"   class="h-7 w-auto opacity-40 transition hover:opacity-90">
+                        <img src="assets/images/nubank.svg" alt="Nubank" class="h-7 w-auto opacity-40 transition hover:opacity-90">
+                        <img src="assets/images/picpay.svg" alt="PicPay" class="h-7 w-auto opacity-40 transition hover:opacity-90">
+                        <img src="assets/images/n8n.svg"    alt="n8n"    class="h-7 w-auto opacity-40 transition hover:opacity-90">
                     </div>
                 </div>
             </div>

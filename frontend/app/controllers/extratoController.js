@@ -1,4 +1,4 @@
-app.controller('ExtratoController', function($document, $scope, AuthService, CategoriaService, ContaService, TransacaoService) {
+app.controller('ExtratoController', function($document, $scope, AuthService, CategoriaService, ContaService, MetaService, TransacaoService) {
     var vm = this;
     var dataAtual = new Date();
     var nomesMeses = [
@@ -56,6 +56,12 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
     vm.transacaoPendenteExclusao = null;
     vm.transacaoEmEdicao = {};
     vm.excluindoTransacaoId = null;
+    vm.confirmacaoEdicaoAberta = false;
+    vm.transacaoPendenteEdicao = null;
+    vm.filtro = { tipo: '', categoriaId: '', descricao: '', tag: '' };
+    vm.avisoMetaAberto = false;
+    vm.avisoMetaInfo = null;
+    vm.payloadPendenteMeta = null;
 
     vm.obterCategoriasPorTipo = function(tipo) {
         if (!tipo) {
@@ -224,6 +230,9 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
         var dataTransacao = vm.novaTransacao.dataTransacao;
         var payload;
         var mensagemErro = 'Não foi possível salvar a transação.';
+        var dataBase;
+        var mesTransacao;
+        var anoTransacao;
 
         vm.mensagemModalErro = '';
 
@@ -265,6 +274,78 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
             return;
         }
 
+        if (vm.novaTransacao.tipo === 'DESPESA' && !isNaN(payload.valor) && payload.valor > 0) {
+            dataBase = typeof dataTransacao === 'string' ? new Date(dataTransacao + 'T00:00:00') : dataTransacao;
+            mesTransacao = dataBase.getMonth() + 1;
+            anoTransacao = dataBase.getFullYear();
+
+            MetaService.obterProgresso(mesTransacao, anoTransacao)
+                .then(function(response) {
+                    var metas = response.data || [];
+                    var metaAfetada = metas.find(function(m) {
+                        return m.categoriaId === payload.categoriaId;
+                    });
+
+                    if (metaAfetada) {
+                        var novoTotal = Number(metaAfetada.valorGasto || 0) + payload.valor;
+                        var limite = Number(metaAfetada.valorLimite || 0);
+
+                        if (novoTotal > limite) {
+                            vm.avisoMetaInfo = {
+                                nomeMeta: metaAfetada.nomeMeta,
+                                nomeCategoria: metaAfetada.nomeCategoria,
+                                valorGasto: Number(metaAfetada.valorGasto || 0),
+                                valorLimite: limite,
+                                novoTotal: novoTotal
+                            };
+                            vm.payloadPendenteMeta = payload;
+                            vm.avisoMetaAberto = true;
+                            return;
+                        }
+                    }
+
+                    executarCriarTransacao(payload);
+                })
+                .catch(function() {
+                    executarCriarTransacao(payload);
+                });
+        } else {
+            executarCriarTransacao(payload);
+        }
+
+        function executarCriarTransacao(p) {
+            TransacaoService.criar(p)
+                .then(function() {
+                    vm.fecharModal();
+                    vm.novaTransacao = {};
+                    vm.carregarTransacoes();
+                })
+                .catch(function(error) {
+                    if (error && error.data) {
+                        if (typeof error.data === 'string') {
+                            mensagemErro = error.data;
+                        } else if (error.data.status) {
+                            mensagemErro = error.data.status;
+                        } else {
+                            mensagemErro = Object.values(error.data).join(' ');
+                        }
+                    }
+
+                    vm.mensagemModalErro = mensagemErro;
+                });
+        }
+    };
+
+    vm.confirmarSalvarComAvisoMeta = function() {
+        var payload = vm.payloadPendenteMeta;
+        vm.avisoMetaAberto = false;
+        vm.avisoMetaInfo = null;
+        vm.payloadPendenteMeta = null;
+
+        if (!payload) {
+            return;
+        }
+
         TransacaoService.criar(payload)
             .then(function() {
                 vm.fecharModal();
@@ -272,18 +353,14 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
                 vm.carregarTransacoes();
             })
             .catch(function(error) {
-                if (error && error.data) {
-                    if (typeof error.data === 'string') {
-                        mensagemErro = error.data;
-                    } else if (error.data.status) {
-                        mensagemErro = error.data.status;
-                    } else {
-                        mensagemErro = Object.values(error.data).join(' ');
-                    }
-                }
-
-                vm.mensagemModalErro = mensagemErro;
+                vm.mensagemModalErro = extrairMensagemErro(error, 'Não foi possível salvar a transação.');
             });
+    };
+
+    vm.cancelarAvisoMeta = function() {
+        vm.avisoMetaAberto = false;
+        vm.avisoMetaInfo = null;
+        vm.payloadPendenteMeta = null;
     };
 
     vm.excluirTransacao = function(transacao) {
@@ -302,29 +379,166 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
             return;
         }
 
-        vm.mensagemErro = '';
-        vm.mensagemEdicaoErro = '';
-
-        if (!vm.contas.length) {
-            vm.mensagemErro = 'Nenhuma conta disponível para edição.';
+        if (transacao.origem === 'WHATSAPP') {
+            vm.transacaoPendenteEdicao = transacao;
+            vm.confirmacaoEdicaoAberta = true;
             return;
         }
 
-        if (!vm.listaCategoriasReais.length) {
-            vm.mensagemErro = 'Nenhuma categoria disponível para edição.';
+        abrirModalEdicao(transacao);
+    };
+
+    vm.confirmarAberturaEdicao = function() {
+        var transacao = vm.transacaoPendenteEdicao;
+        vm.confirmacaoEdicaoAberta = false;
+        vm.transacaoPendenteEdicao = null;
+
+        if (transacao) {
+            abrirModalEdicao(transacao);
+        }
+    };
+
+    vm.cancelarConfirmacaoEdicao = function() {
+        vm.confirmacaoEdicaoAberta = false;
+        vm.transacaoPendenteEdicao = null;
+    };
+
+    vm.transacoesFiltradas = function() {
+        return vm.transacoes.filter(function(t) {
+            var passaTipo = !vm.filtro.tipo || t.tipo === vm.filtro.tipo;
+            var passaCategoria = !vm.filtro.categoriaId || t.categoriaId === vm.filtro.categoriaId;
+            var passaDescricao = !vm.filtro.descricao ||
+                (t.descricao || '').toLowerCase().indexOf(vm.filtro.descricao.toLowerCase()) !== -1;
+            var tagBusca = vm.filtro.tag ? vm.filtro.tag.toLowerCase() : '';
+            var passaTag = !tagBusca || (
+                Array.isArray(t.tags) && t.tags.some(function(tag) {
+                    return (tag || '').toLowerCase().indexOf(tagBusca) !== -1;
+                })
+            );
+            return passaTipo && passaCategoria && passaDescricao && passaTag;
+        });
+    };
+
+    vm.limparFiltros = function() {
+        vm.filtro = { tipo: '', categoriaId: '', descricao: '', tag: '' };
+    };
+
+    vm.exportarCSV = function() {
+        if (!vm.transacoes || !vm.transacoes.length) {
             return;
         }
 
-        vm.transacaoEmEdicao = {
-            id: transacao.id,
-            descricao: transacao.descricao || '',
-            valor: Number(transacao.valor || 0),
-            dataTransacao: transacao.dataTransacao,
-            contaId: transacao.contaId,
-            categoriaId: transacao.categoriaId || encontrarCategoriaIdPorNomeETipo(transacao.categoriaNome, transacao.tipo),
-            tipo: transacao.tipo
-        };
-        vm.modalEdicaoAberto = true;
+        var cabecalho = ['Data', 'Descricao', 'Categoria', 'Tipo', 'Valor', 'Origem'];
+        var linhas = vm.transacoesFiltradas().map(function(t) {
+            return [
+                t.dataTransacao,
+                '"' + (t.descricao || '').replace(/"/g, '""') + '"',
+                '"' + (t.categoriaNome || '') + '"',
+                t.tipo,
+                Number(t.valor).toFixed(2).replace('.', ','),
+                t.origem || 'MANUAL'
+            ].join(';');
+        });
+
+        var conteudo = [cabecalho.join(';')].concat(linhas).join('\n');
+        var blob = new Blob(['﻿' + conteudo], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'extrato-' + vm.anoAtual + '-' + String(vm.mesAtual).padStart(2, '0') + '.csv';
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    vm.exportarPDF = function() {
+        var transacoes;
+        var doc;
+        var totalReceitas;
+        var totalDespesas;
+        var rows;
+        var today;
+
+        if (!vm.transacoes || !vm.transacoes.length) {
+            return;
+        }
+
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+            vm.mensagemErro = 'Biblioteca de PDF não disponível. Tente novamente.';
+            return;
+        }
+
+        transacoes = vm.transacoesFiltradas();
+
+        if (!transacoes.length) {
+            return;
+        }
+
+        doc = new window.jspdf.jsPDF();
+        today = new Date().toLocaleDateString('pt-BR');
+
+        totalReceitas = transacoes
+            .filter(function(t) { return t.tipo === 'RECEITA'; })
+            .reduce(function(sum, t) { return sum + Number(t.valor || 0); }, 0);
+        totalDespesas = transacoes
+            .filter(function(t) { return t.tipo === 'DESPESA'; })
+            .reduce(function(sum, t) { return sum + Number(t.valor || 0); }, 0);
+
+        doc.setTextColor(16, 185, 129);
+        doc.setFontSize(20);
+        doc.setFont(undefined, 'bold');
+        doc.text('Extrato Financeiro', 14, 20);
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont(undefined, 'normal');
+        doc.text(vm.formatarMesAtual() + '  ·  Gerado em ' + today, 14, 28);
+
+        doc.setFontSize(9);
+        doc.setTextColor(20, 150, 90);
+        doc.text('Receitas: R$ ' + totalReceitas.toFixed(2).replace('.', ','), 14, 38);
+        doc.setTextColor(200, 50, 50);
+        doc.text('Despesas: R$ ' + totalDespesas.toFixed(2).replace('.', ','), 70, 38);
+        doc.setTextColor(40, 40, 40);
+        doc.text('Saldo: R$ ' + (totalReceitas - totalDespesas).toFixed(2).replace('.', ','), 135, 38);
+
+        rows = transacoes.map(function(t) {
+            return [
+                new Date(t.dataTransacao + 'T00:00:00').toLocaleDateString('pt-BR'),
+                (t.descricao || '-').substring(0, 38),
+                (t.categoriaNome || '-').substring(0, 20),
+                t.tipo,
+                'R$ ' + Number(t.valor).toFixed(2).replace('.', ',')
+            ];
+        });
+
+        doc.autoTable({
+            startY: 44,
+            head: [['Data', 'Descrição', 'Categoria', 'Tipo', 'Valor']],
+            body: rows,
+            headStyles: {
+                fillColor: [16, 185, 129],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 8
+            },
+            bodyStyles: {
+                fontSize: 8,
+                textColor: [40, 40, 40]
+            },
+            alternateRowStyles: {
+                fillColor: [242, 250, 246]
+            },
+            columnStyles: {
+                0: { cellWidth: 22 },
+                1: { cellWidth: 68 },
+                2: { cellWidth: 38 },
+                3: { cellWidth: 22 },
+                4: { cellWidth: 32, halign: 'right' }
+            },
+            margin: { left: 14, right: 14 }
+        });
+
+        doc.save('extrato-' + vm.anoAtual + '-' + String(vm.mesAtual).padStart(2, '0') + '.pdf');
     };
 
     vm.salvarEdicaoTransacao = function() {
@@ -433,6 +647,16 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
         }
 
         $scope.$applyAsync(function() {
+            if (vm.avisoMetaAberto) {
+                vm.cancelarAvisoMeta();
+                return;
+            }
+
+            if (vm.confirmacaoEdicaoAberta) {
+                vm.cancelarConfirmacaoEdicao();
+                return;
+            }
+
             if (vm.modalExclusaoAberto) {
                 vm.fecharModalExclusao();
                 return;
@@ -447,6 +671,33 @@ app.controller('ExtratoController', function($document, $scope, AuthService, Cat
                 vm.fecharModal();
             }
         });
+    }
+
+    function abrirModalEdicao(transacao) {
+        vm.mensagemErro = '';
+        vm.mensagemEdicaoErro = '';
+
+        if (!vm.contas.length) {
+            vm.mensagemErro = 'Nenhuma conta disponível para edição.';
+            return;
+        }
+
+        if (!vm.listaCategoriasReais.length) {
+            vm.mensagemErro = 'Nenhuma categoria disponível para edição.';
+            return;
+        }
+
+        vm.transacaoEmEdicao = {
+            id: transacao.id,
+            descricao: transacao.descricao || '',
+            valor: Number(transacao.valor || 0),
+            dataTransacao: transacao.dataTransacao,
+            contaId: transacao.contaId,
+            categoriaId: transacao.categoriaId || encontrarCategoriaIdPorNomeETipo(transacao.categoriaNome, transacao.tipo),
+            tipo: transacao.tipo,
+            origem: transacao.origem || 'MANUAL'
+        };
+        vm.modalEdicaoAberto = true;
     }
 
     function aplicarLimiteRecorrenciaPadrao() {

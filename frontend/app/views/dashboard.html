@@ -16,7 +16,7 @@
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+	<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
 		<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30">
 			<div class="flex items-start justify-between gap-4">
 				<div>
@@ -55,7 +55,78 @@
 			</div>
 			<p class="mt-6 text-sm text-zinc-500">Saídas monitoradas com alertas de consumo.</p>
 		</section>
+
+		<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30">
+			<div class="flex items-start justify-between gap-4">
+				<div>
+					<p class="text-sm font-medium uppercase tracking-[0.2em] text-zinc-400">Taxa de Poupança</p>
+					<p class="mt-4 text-3xl font-bold" ng-class="vm.corTaxaPoupanca">{{ vm.taxaPoupanca }}%</p>
+				</div>
+				<div class="relative flex h-12 w-12 shrink-0 items-center justify-center">
+					<svg viewBox="0 0 56 56" class="absolute inset-0 h-full w-full -rotate-90">
+						<circle cx="28" cy="28" r="20" fill="none" stroke="#1c2b23" stroke-width="4"/>
+						<circle cx="28" cy="28" r="20" fill="none" stroke-width="4" stroke-linecap="round"
+							stroke-dasharray="125.66 125.66"
+							ng-style="{'stroke': vm.corRing, 'stroke-dashoffset': vm.ringOffset}"/>
+					</svg>
+					<i class="fa-solid fa-piggy-bank relative text-sm" ng-class="vm.corTaxaPoupanca"></i>
+				</div>
+			</div>
+			<p class="mt-6 text-sm text-zinc-500">Percentual das receitas poupado na competência {{ vm.competenciaLabel }}.</p>
+		</section>
 	</div>
+
+	<div ng-if="vm.previsaoFimMes !== null" class="flex flex-col gap-4 rounded-2xl border border-sky-500/15 bg-[#080d0b] p-5 shadow-lg sm:flex-row sm:items-center">
+		<div class="flex items-center gap-4">
+			<div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-300">
+				<i class="fa-solid fa-calendar-check"></i>
+			</div>
+			<div>
+				<p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400/80">Previsão fim do mês</p>
+				<p
+					class="mt-1 text-2xl font-bold"
+					ng-class="vm.previsaoPositiva ? 'text-emerald-400' : 'text-rose-400'"
+				>{{ vm.previsaoFimMes | mascaraPrivacidade }}</p>
+			</div>
+		</div>
+		<p class="sm:ml-auto text-xs leading-5 text-zinc-500">Saldo atual + receitas e despesas futuras agendadas neste mês.</p>
+	</div>
+
+	<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl md:p-8">
+		<div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+			<div>
+				<p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500/70">Análise</p>
+				<h2 class="mt-2 text-2xl font-semibold text-zinc-100">Ranking de Categorias</h2>
+				<p class="mt-1 text-sm text-zinc-400">Distribuição dos gastos em {{ vm.competenciaLabel }}</p>
+			</div>
+			<span class="self-start rounded-full border border-rose-500/30 bg-rose-600/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-rose-300">Despesas</span>
+		</div>
+
+		<div ng-if="vm.semDadosGastos" class="flex min-h-[10rem] flex-col items-center justify-center rounded-2xl border border-dashed border-emerald-500/20 bg-emerald-500/5 px-6 py-8 text-center">
+			<div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-300">
+				<i class="fa-solid fa-bars-progress text-xl"></i>
+			</div>
+			<p class="mt-4 text-sm text-zinc-400">Sem gastos categorizados em {{ vm.competenciaLabel }} para exibir.</p>
+		</div>
+
+		<div ng-if="!vm.semDadosGastos" class="grid grid-cols-1 gap-3 md:grid-cols-2">
+			<div ng-repeat="item in vm.gastosOrdenados" class="group">
+				<div class="mb-1.5 flex items-center justify-between gap-3">
+					<div class="flex min-w-0 items-center gap-2">
+						<span class="h-2.5 w-2.5 shrink-0 rounded-full" ng-style="{'background-color': item.cor || '#10b981'}"></span>
+						<span class="truncate text-sm font-medium text-zinc-300">{{ item.categoria }}</span>
+					</div>
+					<span class="shrink-0 text-sm font-semibold text-zinc-100">{{ item.valor | currency:'R$ ':2 }}</span>
+				</div>
+				<div class="h-2 w-full overflow-hidden rounded-full bg-zinc-800/60">
+					<div
+						class="h-full rounded-full transition-all duration-700"
+						ng-style="{'width': vm.percentualCategoria(item.valor) + '%', 'background-color': item.cor || '#10b981'}"
+					></div>
+				</div>
+			</div>
+		</div>
+	</section>
 
 	<div class="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_1fr]">
 		<section class="rounded-2xl border border-[#10b981]/10 bg-[#080d0b] p-6 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#10b981]/30 md:p-8">
